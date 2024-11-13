@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Obstacle Dodge Game</title>
+<style>
+body {
+  margin: 0;
+  overflow: hidden;
+  background-color: black;
+}
+
+#gameCanvas {
+  background-color: black;
+  position: relative; /* canvas を position: relative に設定 */
+}
+
+.player {
+  position: absolute;
+  width: 20px;
+  height: 40px;
+  background-color: white;
+}
+
+.obstacle {
+  position: absolute;
+  width: 20px;
+  height: 40px;
+  background-color: red;
+}
+
+.timer {
+  position: absolute;
+  top: 10px;
+  right: 10px; /* right を指定して右寄せ */
+  color: white;
+  font-size: 30px; /* フォントサイズを大きくする */
+  display: none; /* ゲーム開始前は非表示にする */
+}
+
+.difficulty-buttons {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column; /* ボタンを縦に並べる */
+  gap: 20px;
+}
+
+.difficulty-button {
+  background-color: black; /* ボタンの中の色を背景と同じ黒色にする */
+  color: white; /* 文字色を白にする */
+  padding: 20px 40px; /* ボタンのサイズを大きくする */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  /* グラデーションの枠を追加 */
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5), 0 0 10px rgba(255, 0, 255, 0.5);
+}
+</style>
+</head>
+<body>
+<canvas id="gameCanvas" width="600" height="400"></canvas>
+<div class="timer">タイム:</div>
+<div class="difficulty-buttons">
+  <button class="difficulty-button" id="easyButton">EASY</button>
+  <button class="difficulty-button" id="hardButton">HARD</button>
+</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const timerElement = document.querySelector('.timer'); // タイマー要素を取得
+const easyButton = document.getElementById('easyButton');
+const hardButton = document.getElementById('hardButton');
+
+// Player settings
+let player = {
+  x: 50,
+  y: canvas.height / 2,
+  radius: 10, // 円の半径を小さくする
+  speed: 5,
+  // 振動用の変数 - 不要になったので削除
+  // vibrationX: 0,
+  // vibrationY: 0
+};
+
+// Obstacle settings
+const obstacleWidth = 20;
+const obstacleHeight = 40;
+const obstacleColor = 'red';
+// 障害物の速度の平均値
+const averageObstacleSpeed = 2; // 初期速度を 2 に変更
+let obstacles = [];
+
+let isWPressed = false;
+let isSPressed = false;
+
+// ゲーム開始時間
+let startTime = null;
+
+// ゲームオーバーフラグ
+let isGameOver = false;
+
+// ゲームオーバー時の文字のサイズ
+let gameOverFontSize = 10;
+let gameOverScale = 1;
+
+// スコア
+let score = 0;
+
+// 避けた障害物の数
+let avoidedObstacles = 0;
+
+// 振動の強さ - 不要になったので削除
+// const vibrationStrength = 2;
+
+// 難易度
+let difficulty = 'easy';
+
+// 障害物の生成間隔
+const easyObstacleInterval = 1000; // 1秒間隔
+const hardObstacleInterval = 350; // 0.35秒間隔
+
+// 障害物の生成タイマー
+let obstacleTimer = null;
+
+// 難易度選択時の処理
+easyButton.addEventListener('click', () => {
+  difficulty = 'easy';
+  startGame();
+});
+
+hardButton.addEventListener('click', () => {
+  difficulty = 'hard';
+  startGame();
+});
+
+// ゲーム開始処理
+function startGame() {
+  // 難易度ボタンを隠す
+  easyButton.style.display = 'none';
+  hardButton.style.display = 'none';
+
+  // タイマーを表示する
+  timerElement.style.display = 'block'; 
+
+  // 障害物の生成タイマーを開始
+  obstacleTimer = setInterval(() => {
+    generateObstacle();
+  }, difficulty === 'easy' ? easyObstacleInterval : hardObstacleInterval);
+
+  // ゲームループを開始
+  gameLoop();
+}
+
+// 障害物を生成する関数
+function generateObstacle() {
+  // 障害物がプレイヤーと重ならないようにする
+  let newObstacleX = canvas.width;
+  let newObstacleY = Math.random() * (canvas.height - obstacleHeight);
+  while (
+    newObstacleX < player.x + player.radius &&
+    newObstacleX + obstacleWidth > player.x - player.radius &&
+    newObstacleY < player.y + player.radius &&
+    newObstacleY + obstacleHeight > player.y - player.radius
+  ) {
+    newObstacleX = canvas.width;
+    newObstacleY = Math.random() * (canvas.height - obstacleHeight);
+  }
+  obstacles.push({
+    x: newObstacleX,
+    y: newObstacleY,
+    // ランダムな速度を生成（平均値の±0.1）
+    speed: averageObstacleSpeed + (Math.random() * 0.2 - 0.1),
+    rotation: 0 // 回転角度を初期化
+  });
+}
+
+// Game loop
+function gameLoop(timestamp) {
+  // ゲーム開始時間を取得
+  if (!startTime) {
+    startTime = timestamp;
+  }
+
+  // Clear canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Player movement
+  if (isWPressed && player.y - player.radius > 0) {
+    player.y -= player.speed;
+  } else if (isSPressed && player.y + player.radius < canvas.height) {
+    player.y += player.speed;
+  }
+
+  // Move obstacles
+  obstacles.forEach(obstacle => {
+    // スタートからの時間を計算
+    let elapsedTime = timestamp - startTime;
+    // 障害物の速度を計算
+    // 速度を徐々に上げていく
+    let obstacleSpeed = obstacle.speed * Math.pow(elapsedTime / 1000, 0.1); // 速度を秒単位で計算
+    obstacle.x -= obstacleSpeed; 
+    if (obstacle.x < -obstacleWidth) {
+      obstacles.splice(obstacles.indexOf(obstacle), 1);
+      avoidedObstacles++; // 障害物を避けたのでカウントアップ
+    }
+    // 回転角度を更新
+    obstacle.rotation += 0.1; // 0.1 ラジアンずつ回転
+  });
+
+  // Check for collisions
+  obstacles.forEach(obstacle => {
+    if (
+      player.x - player.radius < obstacle.x + obstacleWidth &&
+      player.x + player.radius > obstacle.x &&
+      player.y - player.radius < obstacle.y + obstacleHeight &&
+      player.y + player.radius > obstacle.y
+    ) {
+      // 振動の初期化 - 不要になったので削除
+      // player.vibrationX = Math.random() * vibrationStrength - vibrationStrength / 2;
+      // player.vibrationY = Math.random() * vibrationStrength - vibrationStrength / 2;
+
+      isGameOver = true;
+      cancelAnimationFrame(gameLoop.animationFrame);
+      clearInterval(obstacleTimer); // ゲームオーバー時にタイマーを停止
+    }
+  });
+
+  // Draw player
+  ctx.beginPath();
+  ctx.arc(player.x, player.y, player.radius, 0, 2 * Math.PI); // 振動の処理を削除
+  ctx.fillStyle = 'black'; // 背景と同じ色
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(player.x, player.y, player.radius - 1, 0, 2 * Math.PI); // 少し内側に円を描画
+  ctx.strokeStyle = 'white'; // 白に変更
+  ctx.lineWidth = 2; // 線の太さを変更
+  ctx.stroke();
+
+  // Draw obstacles
+  obstacles.forEach(obstacle => {
+    ctx.save(); // 状態を保存
+    ctx.translate(obstacle.x + obstacleWidth / 2, obstacle.y + obstacleHeight / 2); // 回転の中心を設定
+    ctx.rotate(obstacle.rotation); // 回転
+    ctx.fillStyle = obstacleColor;
+    // 正三角形の描画
+    ctx.beginPath();
+    ctx.moveTo(0, -obstacleHeight / 2); // 頂点
+    ctx.lineTo(-obstacleWidth / 2, obstacleHeight / 2); // 左下
+    ctx.lineTo(obstacleWidth / 2, obstacleHeight / 2); // 右下
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore(); // 状態を復元
+  });
+
+  // Draw game area border with gradient
+  const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+  gradient.addColorStop(0, 'rgba(0, 255, 255, 1)'); // ネオンブルー
+  gradient.addColorStop(1, 'rgba(255, 0, 255, 1)'); // ネオンピンク
+  ctx.strokeStyle = gradient;
+  ctx.lineWidth = 3; // 線の太さを変更
+  ctx.strokeRect(0, 0, canvas.width, canvas.height); // キャンバス全体を囲む
+
+  // 時間の表示
+  if (!isGameOver) {
+    let elapsedTime = (timestamp - startTime) / 1000; // ミリ秒を秒に変換
+    let minutes = Math.floor(elapsedTime / 60); // 分を取得
+    let seconds = Math.floor(elapsedTime % 60); // 秒を取得
+
+    timerElement.textContent = `タイム: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  // ゲームオーバー時の処理
+  if (isGameOver) {
+    // 文字の拡大処理
+    gameOverScale += 0.01;
+    gameOverFontSize = gameOverScale * 50; // 拡大率に応じて文字のサイズを変更
+
+    ctx.font = `${gameOverFontSize}px Arial`;
+    ctx.fillStyle = 'white';
+    ctx.textAlign = 'center';
+    ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - 30); // GAME OVER の位置を調整
+
+    // スコアの計算
+    score = avoidedObstacles * 10 + Math.floor((timestamp - startTime) / 1000);
+
+    ctx.font = `${gameOverFontSize * 0.7}px Arial`; // スコアのフォントサイズを小さくする
+    ctx.fillStyle = 'white';
+    ctx.textAlign = 'center';
+    ctx.fillText(`SCORE: ${score}`, canvas.width / 2, canvas.height / 2 + 30); // スコアの表示位置を調整
+
+    // デバイスをフリーズさせる
+    // 実際にはブラウザをフリーズさせることはできません。
+    // 何かしらの処理を追加して、ゲームを停止させる必要があります。
+    // 例えば、`cancelAnimationFrame` を呼び出して、ゲームループを停止させることができます。
+    // cancelAnimationFrame(gameLoop.animationFrame);
+  } else {
+    // Request animation frame
+    gameLoop.animationFrame = requestAnimationFrame(gameLoop);
+  }
+}
+
+// Start game loop
+// gameLoop(); // 難易度選択ボタンを表示するため、ゲームループはここで開始しない
+
+// Event listener for key presses
+window.addEventListener('keydown', (event) => {
+  // Handle 'w' and 's' keys for player movement
+  if (event.key === 'w') {
+    isWPressed = true;
+  } else if (event.key === 's') {
+    isSPressed = true;
+  }
+});
+
+window.addEventListener('keyup', (event) => {
+  if (event.key === 'w') {
+    isWPressed = false;
+  } else if (event.key === 's') {
+    isSPressed = false;
+  }
+});
+</script>
+</body>
+</html>
