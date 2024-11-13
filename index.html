@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>全村人 最安値・最高値</title>
+  <style>
+    table {
+      width: 80%;
+      border-collapse: collapse;
+      margin: 20px auto;
+    }
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+
+    /* 列幅を固定 */
+    table th:first-child,
+    table td:first-child {
+      width: 150px; 
+    }
+    table th:nth-child(2),
+    table td:nth-child(2) {
+      width: 80px; 
+    }
+    table th:nth-child(3),
+    table td:nth-child(3) {
+      width: 150px; 
+    }
+
+    /* エンチャント*/
+    #enchantTable {
+      width: 80%; /* 幅 80% */
+    }
+
+    /*エンチャント表の項目幅 */
+    #enchantTable th:first-child,
+    #enchantTable td:first-child {
+      width: 150px; /* エンチャントの幅 150px */
+    }
+    #enchantTable th:nth-child(2),
+    #enchantTable td:nth-child(2) {
+      width: 80px; /* 最安値の幅 100px*/
+    }
+    #enchantTable th:nth-child(3),
+    #enchantTable td:nth-child(3) {
+      width: 80px; /* 最高値の幅 100px*/
+    }
+
+    /* 検索ボックスとボタンのスタイル */
+    #searchContainer {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    #searchInput {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px 0 0 5px;
+      font-size: 16px;
+      width: 200px;
+    }
+    #searchButton {
+      padding: 10px 15px;
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      border-radius: 0 5px 5px 0;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+  </style>
+</head>
+<body>
+  <h1 style="text-align: center;">全村人 最安値・最高値</h1>
+
+<div id="searchContainer">
+    <input type="text" id="searchInput" placeholder="検索">
+    <button id="searchButton" onclick="searchTable()">検索</button>
+  </div>
+
+  <h2 style="text-align: left; margin-left: 10%;">司書</h2> <span style="text-align: center;">
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align: center;">必要なアイテム</th>
+        <th style="text-align: center;">必要な個数</th>
+        <th style="text-align: center;">受け取るアイテム</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align: center;">紙</td>
+        <td style="text-align: center;">24個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">9個</td>
+        <td style="text-align: center;">本棚</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">本</td>
+        <td style="text-align: center;">4個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">ランタン</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">イカスミ</td>
+        <td style="text-align: center;">5個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">ガラス 4個</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">本と羽ペン</td>
+        <td style="text-align: center;">2個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">4個</td>
+        <td style="text-align: center;">コンパス</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">5個</td>
+        <td style="text-align: center;">時計</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">20個</td>
+        <td style="text-align: center;">名札</td>
+      </tr>
+    </tbody>
+  </table></span>
+
+  <h2 style="text-align: left; margin-left: 10%;"></h2> <span style="text-align: center;">
+  <table id="enchantTable">
+    <thead>
+      <tr>
+        <th style="text-align: center;">エンチャント</th>
+        <th style="text-align: center;">最安値</th>
+        <th style="text-align: center;">最高値</th>	
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align: center;">修繕</td>
+        <td style="text-align: center;">10エメ</td>
+        <td style="text-align: center;">38エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">耐久力Ⅲ</td>
+        <td style="text-align: center;">11エメ</td>
+        <td style="text-align: center;">45エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">シルクタッチ</td>
+        <td style="text-align: center;">5エメ</td>
+        <td style="text-align: center;">19エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">効率強化Ⅴ</td>
+        <td style="text-align: center;">17エメ</td>
+        <td style="text-align: center;">64エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">幸運Ⅲ</td>
+        <td style="text-align: center;">11エメ</td>
+        <td style="text-align: center;">45エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">ダメージ増加Ⅴ</td>
+        <td style="text-align: center;">17エメ</td>
+        <td style="text-align: center;">64エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">アンデッド特攻Ⅴ</td>
+        <td style="text-align: center;">17エメ</td>
+        <td style="text-align: center;">64エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">火属性Ⅱ</td>
+        <td style="text-align: center;">8エメ</td>
+        <td style="text-align: center;">32エメ</td>
+      </tr> 
+      <tr>
+        <td style="text-align: center;">ドロップ増加Ⅲ</td>
+        <td style="text-align: center;">11エメ</td>
+        <td style="text-align: center;">45エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">射撃ダメージ増加Ⅴ</td>
+        <td style="text-align: center;">17エメ</td>
+        <td style="text-align: center;">64エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">パンチⅡ</td>
+        <td style="text-align: center;">8エメ</td>
+        <td style="text-align: center;">32エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">フレイム</td>
+        <td style="text-align: center;">5エメ</td>
+        <td style="text-align: center;">19エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">無限</td>
+        <td style="text-align: center;">5エメ</td>
+        <td style="text-align: center;">19エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">ダメージ軽減Ⅳ</td>
+        <td style="text-align: center;">14エメ</td>
+        <td style="text-align: center;">58エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">火炎耐性Ⅳ</td>
+        <td style="text-align: center;">14エメ</td>
+        <td style="text-align: center;">58エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">爆発耐性Ⅳ</td>
+        <td style="text-align: center;">14エメ</td>
+        <td style="text-align: center;">58エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">飛び道具耐性Ⅳ</td>
+        <td style="text-align: center;">14エメ</td>
+        <td style="text-align: center;">58エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">落下耐性Ⅳ</td>
+        <td style="text-align: center;">14エメ</td>
+        <td style="text-align: center;">58エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">棘の鎧Ⅲ</td>
+        <td style="text-align: center;">11エメ</td>
+        <td style="text-align: center;">45エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">水中呼吸Ⅲ</td>
+        <td style="text-align: center;">11エメ</td>
+        <td style="text-align: center;">45エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">水中歩行Ⅲ</td>
+        <td style="text-align: center;">11エメ</td>
+        <td style="text-align: center;">45エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">水中採掘</td>
+        <td style="text-align: center;">5エメ</td>
+        <td style="text-align: center;">19エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">高速装填Ⅲ</td>
+        <td style="text-align: center;">11エメ</td>
+        <td style="text-align: center;">45エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">貫通Ⅳ</td>
+        <td style="text-align: center;">14エメ</td>
+        <td style="text-align: center;">58エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">拡散</td>
+        <td style="text-align: center;">5エメ</td>
+        <td style="text-align: center;">19エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">召雷</td>
+        <td style="text-align: center;">5エメ</td>
+        <td style="text-align: center;">19エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">水生特攻Ⅴ</td>
+        <td style="text-align: center;">17エメ</td>
+        <td style="text-align: center;">64エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">忠誠Ⅲ</td>
+        <td style="text-align: center;">11エメ</td>
+        <td style="text-align: center;">45エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">激流Ⅲ</td>
+        <td style="text-align: center;">11エメ</td>
+        <td style="text-align: center;">45エメ</td>
+      </tr>
+    </tbody>
+  </table></span>
+
+  <h2 style="text-align: left; margin-left: 10%;">防具鍛冶</h2> <span style="text-align: center;">
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align: center;">必要なアイテム</th>
+        <th style="text-align: center;">必要な個数</th>
+        <th style="text-align: center;">受け取るアイテム</th>
+      </tr>
+    </thead>
+    <tbody>
+	<tr>
+        <td style="text-align: center;">石炭</td>
+        <td style="text-align: center;">15個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">5個</td>
+        <td style="text-align: center;">鉄のヘルメット</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">9個</td>
+        <td style="text-align: center;">鉄のチェストプレート</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">7個</td>
+        <td style="text-align: center;">鉄のレギンス</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">4個</td>
+        <td style="text-align: center;">鉄のブーツ</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">エメラルド</td>
+       <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">チェーンメイルのヘルメット</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">4個</td>
+        <td style="text-align: center;">チェーンメイルのチェストプレート</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">3個</td>
+        <td style="text-align: center;">チェーンメイルのレギンス</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">エメラルド</td>
+       <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">チェーンメイルのブーツ</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">鉄インゴット</td>
+        <td style="text-align: center;">4個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">36個</td>
+        <td style="text-align: center;">鐘</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">5個</td>
+        <td style="text-align: center;">盾</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">ダイヤモンド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+    </tbody>
+  </table></span>
+
+
+
+  <h2 style="text-align: left; margin-left: 10%;"></h2> <span style="text-align: center;">
+  <table id="enchantTable">
+    <thead>
+      <tr>
+        <th style="text-align: center;">装備</th>
+        <th style="text-align: center;">最安値</th>
+        <th style="text-align: center;">最高値</th>	
+      </tr>
+      <tr>
+        <td style="text-align: center;">ダイヤのヘルメット</td>
+        <td style="text-align: center;">13エメ</td>
+        <td style="text-align: center;">27エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">ダイヤのチェストプレート</td>
+        <td style="text-align: center;">21エメ</td>
+        <td style="text-align: center;">35エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">ダイヤのレギンス</td>
+        <td style="text-align: center;">19エメ</td>
+        <td style="text-align: center;">33エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">ダイヤのブーツ</td>
+        <td style="text-align: center;">13エメ</td>
+        <td style="text-align: center;">27エメ</td>
+      </tr>
+    </tbody>
+  </table></span>
+
+
+  <h2 style="text-align: left; margin-left: 10%;">武器鍛冶</h2> <span style="text-align: center;">
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align: center;">必要なアイテム</th>
+        <th style="text-align: center;">必要な個数</th>
+        <th style="text-align: center;">受け取るアイテム</th>
+      </tr>
+    </thead>
+    <tbody>
+	<tr>
+        <td style="text-align: center;">石炭</td>
+        <td style="text-align: center;">15個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">3個</td>
+        <td style="text-align: center;">鉄の斧</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">鉄インゴット</td>
+        <td style="text-align: center;">4個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">火打石</td>
+        <td style="text-align: center;">24個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">36個</td>
+        <td style="text-align: center;">鐘</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">ダイヤモンド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+    </tbody>
+  </table></span>
+
+
+  <h2 style="text-align: left; margin-left: 10%;"></h2> <span style="text-align: center;">
+  <table id="enchantTable">
+    <thead>
+      <tr>
+        <th style="text-align: center;">武器</th>
+        <th style="text-align: center;">最安値</th>
+        <th style="text-align: center;">最高値</th>	
+      </tr>
+      <tr>
+        <td style="text-align: center;">鉄の剣</td>
+        <td style="text-align: center;">7エメ</td>
+        <td style="text-align: center;">21エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">ダイヤの剣</td>
+        <td style="text-align: center;">13エメ</td>
+        <td style="text-align: center;">27エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">ダイヤの斧</td>
+        <td style="text-align: center;">17エメ</td>
+        <td style="text-align: center;">31エメ</td>
+      </tr>
+    </tbody>
+  </table></span>
+
+
+  <h2 style="text-align: left; margin-left: 10%;">道具鍛冶</h2> <span style="text-align: center;">
+
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align: center;">必要なアイテム</th>
+        <th style="text-align: center;">必要な個数</th>
+        <th style="text-align: center;">受け取るアイテム</th>
+      </tr>
+    </thead>
+    <tbody>
+	<tr>
+        <td style="text-align: center;">石炭</td>
+        <td style="text-align: center;">15個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">石の斧</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">石のツルハシ</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">石のシャベル</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">石のクワ</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">鉄インゴット</td>
+        <td style="text-align: center;">4個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">火打石</td>
+        <td style="text-align: center;">30個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">36個</td>
+        <td style="text-align: center;">鐘</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">ダイヤモンド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+	<tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">4個</td>
+        <td style="text-align: center;">ダイヤのクワ</td>
+      </tr>
+    </tbody>
+  </table></span>
+
+
+
+
+  <h2 style="text-align: left; margin-left: 10%;"></h2> <span style="text-align: center;">
+  <table id="enchantTable">
+    <thead>
+      <tr>
+        <th style="text-align: center;">道具</th>
+        <th style="text-align: center;">最安値</th>
+        <th style="text-align: center;">最高値</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align: center;">鉄のシャベル</td>
+        <td style="text-align: center;">7エメ</td>
+        <td style="text-align: center;">21エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">鉄の斧</td>
+        <td style="text-align: center;">6エメ</td>
+        <td style="text-align: center;">20エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">鉄のツルハシ</td>
+        <td style="text-align: center;">8エメ</td>
+        <td style="text-align: center;">22エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">ダイヤのシャベル</td>
+        <td style="text-align: center;">10エメ</td>
+        <td style="text-align: center;">24エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">ダイヤの斧</td>
+        <td style="text-align: center;">17エメ</td>
+        <td style="text-align: center;">31エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">ダイヤのツルハシ</td>
+        <td style="text-align: center;">18エメ</td>
+        <td style="text-align: center;">32エメ</td>
+      </tr>
+    </tbody>
+  </table></span>
+
+  <h2 style="text-align: left; margin-left: 10%;">矢師</h2> <span style="text-align: center;">
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align: center;">必要なアイテム</th>
+        <th style="text-align: center;">必要な個数</th>
+        <th style="text-align: center;">受け取るアイテム</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align: center;">棒</td>
+        <td style="text-align: center;">32個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">矢 16個</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド,砂利</td>
+        <td style="text-align: center;">1個,10個</td>
+        <td style="text-align: center;">火打石 10個</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">火打石</td>
+        <td style="text-align: center;">26個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">2個</td>
+        <td style="text-align: center;">弓</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">糸</td>
+        <td style="text-align: center;">14個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">3個</td>
+        <td style="text-align: center;">クロスボウ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">羽</td>
+        <td style="text-align: center;">24個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">トリップワイヤーフック</td>
+        <td style="text-align: center;">8個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド,矢</td>
+        <td style="text-align: center;">2個,5個</td>
+        <td style="text-align: center;">効果付きの矢 5個</td>
+      </tr>
+    </tbody>
+  </table></span>
+
+  <h2 style="text-align: left; margin-left: 10%;"></h2> <span style="text-align: center;">
+  <table id="enchantTable">
+    <thead>
+      <tr>
+        <th style="text-align: center;">エンチャントされたアイテム</th>
+        <th style="text-align: center;">最安値</th>
+        <th style="text-align: center;">最高値</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align: center;">弓</td>
+        <td style="text-align: center;">7エメ</td>
+        <td style="text-align: center;">21エメ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">クロスボウ</td>
+        <td style="text-align: center;">8エメ</td>
+        <td style="text-align: center;">22エメ</td>
+      </tr>
+    </tbody>
+  </table></span>
+
+  <h2 style="text-align: left; margin-left: 10%;">釣り人</h2> <span style="text-align: center;">
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align: center;">必要なアイテム</th>
+        <th style="text-align: center;">必要な個数</th>
+        <th style="text-align: center;">受け取るアイテム</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align: center;">糸</td>
+        <td style="text-align: center;">20個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">石炭</td>
+        <td style="text-align: center;">10個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">3個</td>
+        <td style="text-align: center;">タラ入りバケツ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド,生鱈</td>
+        <td style="text-align: center;">1個,6個</td>
+        <td style="text-align: center;">焼き鱈 6個</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド,生鮭</td>
+        <td style="text-align: center;">1個,6個</td>
+        <td style="text-align: center;">焼き鮭 6個</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">生鱈</td>
+        <td style="text-align: center;">15個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">2個</td>
+        <td style="text-align: center;">焚き火</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">生鮭</td>
+        <td style="text-align: center;">13個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">熱帯魚</td>
+        <td style="text-align: center;">6個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">フグ</td>
+        <td style="text-align: center;">4個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">ボート</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+    </tbody>
+  </table></span>
+
+  <h2 style="text-align: left; margin-left: 10%;"></h2> <span style="text-align: center;">
+  <table id="enchantTable">
+    <thead>
+      <tr>
+        <th style="text-align: center;">アイテム</th>
+        <th style="text-align: center;">最安値</th>
+        <th style="text-align: center;">最高値</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align: center;">釣竿</td>
+        <td style="text-align: center;">7エメ</td>
+        <td style="text-align: center;">22エメ</td>
+      </tr>
+    </tbody>
+  </table></span>
+
+
+
+  <h2 style="text-align: left; margin-left: 10%;">肉屋</h2> <span style="text-align: center;">
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align: center;">必要なアイテム</th>
+        <th style="text-align: center;">必要な個数</th>
+        <th style="text-align: center;">受け取るアイテム</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align: center;">生の鶏肉</td>
+        <td style="text-align: center;">14個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">生の豚肉</td>
+        <td style="text-align: center;">7個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">生の兎肉</td>
+        <td style="text-align: center;">4個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">ウサギシチュー</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">石炭</td>
+        <td style="text-align: center;">15個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">焼き豚 5個</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">焼き鳥 8個</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">生の羊肉</td>
+        <td style="text-align: center;">7個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">生の牛肉</td>
+        <td style="text-align: center;">10個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">乾燥した昆布ブロック</td>
+        <td style="text-align: center;">10個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">スイートベリー</td>
+        <td style="text-align: center;">10個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+    </tbody>
+  </table></span>
+
+  <h2 style="text-align: left; margin-left: 10%;">製図家</h2> <span style="text-align: center;">
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align: center;">必要なアイテム</th>
+        <th style="text-align: center;">必要な個数</th>
+        <th style="text-align: center;">受け取るアイテム</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align: center;">紙</td>
+        <td style="text-align: center;">24個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">7個</td>
+        <td style="text-align: center;">白紙の地図</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">ガラス板</td>
+        <td style="text-align: center;">11個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">コンパス</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド,コンパス</td>
+        <td style="text-align: center;">13個,1個</td>
+        <td style="text-align: center;">海洋探検家の地図</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド,コンパス</td>
+        <td style="text-align: center;">14個,1個</td>
+        <td style="text-align: center;">森林探検家の地図</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド,コンパス</td>
+        <td style="text-align: center;">12個,1個</td>
+        <td style="text-align: center;">トライアル探検家の地図</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">7個</td>
+        <td style="text-align: center;">額縁</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">3個</td>
+        <td style="text-align: center;">旗</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">8個</td>
+        <td style="text-align: center;">旗の模様</td>
+      </tr>
+    </tbody>
+  </table></span>
+
+  <h2 style="text-align: left; margin-left: 10%;">司祭</h2> <span style="text-align: center;">
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align: center;">必要なアイテム</th>
+        <th style="text-align: center;">必要な個数</th>
+        <th style="text-align: center;">受け取るアイテム</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align: center;">腐った肉</td>
+        <td style="text-align: center;">32個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">レッドストーンダスト 2個</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">金インゴット</td>
+        <td style="text-align: center;">3個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">ラピスラズリ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">ウサギの足</td>
+        <td style="text-align: center;">2個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">4個</td>
+        <td style="text-align: center;">グロウストーン</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">カメのウロコ</td>
+        <td style="text-align: center;">4個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">ガラス瓶</td>
+        <td style="text-align: center;">9個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">5個</td>
+        <td style="text-align: center;">エンダーパール</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">ネザーウォート</td>
+        <td style="text-align: center;">22個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">3個</td>
+        <td style="text-align: center;">エンチャントの瓶</td>
+      </tr>
+    </tbody>
+  </table></span>
+
+
+
+  <h2 style="text-align: left; margin-left: 10%;">農民</h2> <span style="text-align: center;">
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align: center;">必要なアイテム</th>
+        <th style="text-align: center;">必要な個数</th>
+        <th style="text-align: center;">受け取るアイテム</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align: center;">小麦</td>
+        <td style="text-align: center;">20個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">ジャガイモ</td>
+        <td style="text-align: center;">26個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">ニンジン</td>
+        <td style="text-align: center;">22個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">ビートルート</td>
+        <td style="text-align: center;">15個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">パン 6個</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">カボチャ</td>
+        <td style="text-align: center;">6個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">パンプキンパイ 4個</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">リンゴ 4個</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">スイカ</td>
+        <td style="text-align: center;">4個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">3個</td>
+        <td style="text-align: center;">クッキー 18個</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">怪しげなシチュー</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">ケーキ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">3個</td>
+        <td style="text-align: center;">金のニンジン 3個</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">4個</td>
+        <td style="text-align: center;">輝くスイカの薄切り 3個</td>
+      </tr>
+    </tbody>
+  </table></span>
+
+
+  <h2 style="text-align: left; margin-left: 10%;">革細工師</h2> <span style="text-align: center;">
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align: center;">必要なアイテム</th>
+        <th style="text-align: center;">必要な個数</th>
+        <th style="text-align: center;">受け取るアイテム</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align: center;">革</td>
+        <td style="text-align: center;">6個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">5個</td>
+        <td style="text-align: center;">革のヘルメット</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">7個</td>
+        <td style="text-align: center;">革のチェストプレート</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">3個</td>
+        <td style="text-align: center;">革のレギンス</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">4個</td>
+        <td style="text-align: center;">革のブーツ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">火打石</td>
+        <td style="text-align: center;">26個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">ウサギの皮</td>
+        <td style="text-align: center;">9個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">甲羅のかけら</td>
+        <td style="text-align: center;">4個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">6個</td>
+        <td style="text-align: center;">革の馬鎧</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">6個</td>
+        <td style="text-align: center;">鞍</td>
+      </tr>
+    </tbody>
+  </table></span>
+
+  <h2 style="text-align: left; margin-left: 10%;">石工</h2> <span style="text-align: center;">
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align: center;">必要なアイテム</th>
+        <th style="text-align: center;">必要な個数</th>
+        <th style="text-align: center;">受け取るアイテム</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align: center;">粘土</td>
+        <td style="text-align: center;">10個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">レンガ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">石</td>
+        <td style="text-align: center;">20個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">模様入りの石レンガ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">安山岩</td>
+        <td style="text-align: center;">16個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">花崗岩</td>
+        <td style="text-align: center;">16個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">閃緑岩</td>
+        <td style="text-align: center;">16個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">磨かれた安山岩</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">磨かれた花崗岩</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">磨かれた閃緑岩</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">鍾乳石ブロック</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">ネザークォーツ</td>
+        <td style="text-align: center;">12個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">テラコッタ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">クォーツの柱</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">クォーツブロック</td>
+      </tr>
+    </tbody>
+  </table></span>
+
+  <h2 style="text-align: left; margin-left: 10%;">羊飼い</h2> <span style="text-align: center;">
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align: center;">必要なアイテム</th>
+        <th style="text-align: center;">必要な個数</th>
+        <th style="text-align: center;">受け取るアイテム</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align: center;">羊毛</td>
+        <td style="text-align: center;">18個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">2個</td>
+        <td style="text-align: center;">ハサミ</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">染料</td>
+        <td style="text-align: center;">12個</td>
+        <td style="text-align: center;">エメラルド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">羊毛</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">1個</td>
+        <td style="text-align: center;">カーペット 4個</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">3個</td>
+        <td style="text-align: center;">ベッド</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">3個</td>
+        <td style="text-align: center;">旗</td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">エメラルド</td>
+        <td style="text-align: center;">2個</td>
+        <td style="text-align: center;">絵画 3個</td>
+      </tr>
+    </tbody>
+  </table></span>
+
+
+
+
+
+
+  <script>
+    function searchTable() {
+      // 検索ボックスの値を取得
+      var searchTerm = document.getElementById("searchInput").value.toLowerCase();
+
+      // 全ての表を取得
+      var tables = document.querySelectorAll("table");
+
+      // 各表の行をループ処理
+      for (var i = 0; i < tables.length; i++) {
+        var rows = tables[i].querySelectorAll("tbody tr");
+        for (var j = 0; j < rows.length; j++) {
+          var cells = rows[j].querySelectorAll("td");
+          var found = false;
+
+          // 各セルのテキストをループ処理
+          for (var k = 0; k < cells.length; k++) {
+            if (cells[k].textContent.toLowerCase().indexOf(searchTerm) > -1) {
+              found = true;
+              break;
+            }
+          }
+
+          // 検索結果に基づいて行の表示/非表示を切り替え
+          if (found) {
+            rows[j].style.display = "";
+          } else {
+            rows[j].style.display = "none";
+          }
+        }
+      }
+    }
+  </script>
+
+</body>
+</html>
