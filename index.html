@@ -177,14 +177,11 @@ function startGame() {
 }
 
 function generateObstacle() {
-  if (difficulty === 'hard') {
-    obstacleWidth = 30;
+  if (difficulty === 'hard' || difficulty === 'oni') {
+    obstacleWidth = 30; // HARDと同じ大きさ
     obstacleHeight = 30;
-  } else if (difficulty === 'oni') {
-    obstacleWidth = 60; // HARDの2倍の大きさ
-    obstacleHeight = 60;
 
-    if (Math.random() < 0.1) { // 10%の確率で巨大障害物
+    if (difficulty === 'oni' && Math.random() < 0.1) { // 鬼畜モードのみ10%の確率で巨大障害物
       obstacleWidth = 100;
       obstacleHeight = 100;
       obstacleColor = 'yellow'; // 巨大障害物の色は黄色
@@ -274,12 +271,20 @@ function gameLoop(timestamp) {
   ctx.stroke();
 
   obstacles.forEach(obstacle => {
+    ctx.save();
+    ctx.translate(obstacle.x + obstacle.width / 2, obstacle.y + obstacle.height / 2);
+    ctx.rotate(obstacle.rotation);
     ctx.fillStyle = obstacle.color;
-    if (obstacle.width === 100 && obstacle.height === 100) {
-      ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height); // 巨大障害物はfillRectで描画
-    } else {
-      ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-    }
+   
+    ctx.beginPath();
+    const sideLength = obstacle.width * Math.sqrt(3) / 2;
+    const height = sideLength * Math.sqrt(3) / 2;
+    ctx.moveTo(0, -height);
+    ctx.lineTo(-sideLength / 2, height / 2);
+    ctx.lineTo(sideLength / 2, height / 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
   });
 
   const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
