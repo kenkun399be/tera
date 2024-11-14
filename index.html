@@ -103,7 +103,16 @@ body {
   <button class="difficulty-button" id="oniButton">鬼畜</button>
 </div>
 
-<div class="laser"></div>
+<div class="laser" id="laser1"></div>
+<div class="laser" id="laser2"></div>
+<div class="laser" id="laser3"></div>
+<div class="laser" id="laser4"></div>
+<div class="laser" id="laser5"></div>
+<div class="laser" id="laser6"></div>
+<div class="laser" id="laser7"></div>
+<div class="laser" id="laser8"></div>
+<div class="laser" id="laser9"></div>
+<div class="laser" id="laser10"></div>
 
 <script>
 const canvas = document.getElementById('gameCanvas');
@@ -114,7 +123,18 @@ const highScoreElement = document.querySelector('.high-score');
 const easyButton = document.getElementById('easyButton');
 const hardButton = document.getElementById('hardButton');
 const oniButton = document.getElementById('oniButton');
-const laserElement = document.querySelector('.laser');
+const laserElements = [
+  document.getElementById('laser1'),
+  document.getElementById('laser2'),
+  document.getElementById('laser3'),
+  document.getElementById('laser4'),
+  document.getElementById('laser5'),
+  document.getElementById('laser6'),
+  document.getElementById('laser7'),
+  document.getElementById('laser8'),
+  document.getElementById('laser9'),
+  document.getElementById('laser10')
+];
 
 let player = {
   x: 50,
@@ -154,10 +174,9 @@ let obstacleTimer = null;
 
 let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0;
 
-let isLaserActive = false;
-let laserX = 0;
-let laserY = 0;
-let laserSpeed = 10;
+let lasers = []; // レーザーの配列
+const maxLasers = 10; // 最大レーザー数
+const laserSpeed = 10;
 
 easyButton.addEventListener('click', () => {
   difficulty = 'easy';
@@ -244,34 +263,37 @@ function gameLoop(timestamp) {
     player.y += player.speed;
   }
 
-  if (isLaserActive) {
-    laserX += laserSpeed;
-    laserElement.style.left = laserX + 'px';
-    laserElement.style.top = laserY + 'px';
-    laserElement.style.display = 'block';
+  // レーザーの更新
+  lasers.forEach((laser, index) => {
+    laser.x += laserSpeed;
 
-    // レーザーが画面外に出たら非表示にする
-    if (laserX > canvas.width) {
-      isLaserActive = false;
-      laserElement.style.display = 'none';
+    // レーザー要素の更新
+    if (index < laserElements.length) {
+      laserElements[index].style.left = laser.x + 'px';
+      laserElements[index].style.top = laser.y + 'px';
+      laserElements[index].style.display = 'block';
+    }
+
+    // レーザーが画面外に出たら削除
+    if (laser.x > canvas.width) {
+      lasers.splice(index, 1);
     }
 
     // レーザーと障害物の衝突判定
-    obstacles.forEach((obstacle, index) => {
+    obstacles.forEach((obstacle, obstacleIndex) => {
       if (
-        laserX < obstacle.x + obstacle.width &&
-        laserX + 5 > obstacle.x &&
-        laserY < obstacle.y + obstacle.height &&
-        laserY + 20 > obstacle.y
+        laser.x < obstacle.x + obstacle.width &&
+        laser.x + 5 > obstacle.x &&
+        laser.y < obstacle.y + obstacle.height &&
+        laser.y + 20 > obstacle.y
       ) {
         // 衝突したら障害物を消す
-        obstacles.splice(index, 1);
+        obstacles.splice(obstacleIndex, 1);
         avoidedObstacles++;
-        isLaserActive = false;
-        laserElement.style.display = 'none';
+        lasers.splice(index, 1); // 衝突したレーザーも削除
       }
     });
-  }
+  });
 
   obstacles.forEach(obstacle => {
     let elapsedTime = timestamp - startTime;
@@ -387,10 +409,24 @@ window.addEventListener('keydown', (event) => {
     isUpPressed = true;
   } else if (event.key === 's' || event.key === 'ArrowDown') {
     isDownPressed = true;
-  } else if (event.key === ' ' && difficulty === 'oni' && !isLaserActive) { // 鬼畜モードでスペースキーが押され、レーザーがアクティブでない場合
-    isLaserActive = true;
-    laserX = player.x;
-    laserY = player.y - 10; // プレイヤーの上からレーザーを発射
+  } else if (event.key === ' ' && difficulty === 'oni' && lasers.length < maxLasers) { // 鬼畜モードでスペースキーが押され、レーザー数が最大数未満の場合
+    if (Math.random() < 0.1) { // 10%の確率で全方向レーザー
+      const angleStep = 3.6; // レーザーの角度間隔
+      for (let i = 0; i < 360; i += angleStep) {
+        const angle = i * Math.PI / 180;
+        const laserX = player.x + Math.cos(angle) * 10;
+        const laserY = player.y + Math.sin(angle) * 10;
+        lasers.push({
+          x: laserX,
+          y: laserY
+        });
+      }
+    } else { // 通常のレーザー
+      lasers.push({
+        x: player.x,
+        y: player.y - 10 // プレイヤーの上からレーザーを発射
+      });
+    }
   }
 });
 
