@@ -266,6 +266,7 @@ function gameLoop(timestamp) {
   // レーザーの更新
   lasers.forEach((laser, index) => {
     laser.x += laserSpeed;
+    laser.y += (Math.random() - 0.5) * 2; // ランダムな縦方向の速度
 
     // レーザー要素の更新
     if (index < laserElements.length) {
@@ -275,7 +276,7 @@ function gameLoop(timestamp) {
     }
 
     // レーザーが画面外に出たら削除
-    if (laser.x > canvas.width) {
+    if (laser.x > canvas.width || laser.y < 0 || laser.y > canvas.height) {
       lasers.splice(index, 1);
     }
 
@@ -418,13 +419,15 @@ window.addEventListener('keydown', (event) => {
         const laserY = player.y + Math.sin(angle) * 10;
         lasers.push({
           x: laserX,
-          y: laserY
+          y: laserY,
+          verticalSpeed: (Math.random() - 0.5) * 2 // ランダムな縦方向の速度
         });
       }
     } else { // 通常のレーザー
       lasers.push({
         x: player.x,
-        y: player.y - 10 // プレイヤーの上からレーザーを発射
+        y: player.y - 10, // プレイヤーの上からレーザーを発射
+        verticalSpeed: (Math.random() - 0.5) * 2 // ランダムな縦方向の速度
       });
     }
   }
