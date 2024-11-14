@@ -411,7 +411,7 @@ window.addEventListener('keydown', (event) => {
     isDownPressed = true;
   } else if (event.key === ' ' && difficulty === 'oni' && lasers.length < maxLasers) { // 鬼畜モードでスペースキーが押され、レーザー数が最大数未満の場合
     if (Math.random() < 0.1) { // 10%の確率で全方向レーザー
-      const angleStep = 3.6; // レーザーの角度間隔
+      const angleStep = 5; // レーザーの角度間隔
       for (let i = 0; i < 360; i += angleStep) {
         const angle = i * Math.PI / 180;
         const laserX = player.x + Math.cos(angle) * 10;
