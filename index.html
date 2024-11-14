@@ -266,7 +266,12 @@ function gameLoop(timestamp) {
   // レーザーの更新
   lasers.forEach((laser, index) => {
     laser.x += laserSpeed;
-    laser.y += (Math.random() - 0.5) * 2; // ランダムな縦方向の速度
+    laser.y += laser.verticalSpeed; // 縦方向に移動
+
+    // 天井と床にぶつかったら跳ね返る
+    if (laser.y < 0 || laser.y > canvas.height) {
+      laser.verticalSpeed *= -1;
+    }
 
     // レーザー要素の更新
     if (index < laserElements.length) {
@@ -276,7 +281,7 @@ function gameLoop(timestamp) {
     }
 
     // レーザーが画面外に出たら削除
-    if (laser.x > canvas.width || laser.y < 0 || laser.y > canvas.height) {
+    if (laser.x > canvas.width) {
       lasers.splice(index, 1);
     }
 
@@ -420,14 +425,14 @@ window.addEventListener('keydown', (event) => {
         lasers.push({
           x: laserX,
           y: laserY,
-          verticalSpeed: (Math.random() - 0.5) * 2 // ランダムな縦方向の速度
+          verticalSpeed: (Math.random() - 0.5) * 5 // 縦方向の速度を大きくする
         });
       }
     } else { // 通常のレーザー
       lasers.push({
         x: player.x,
         y: player.y - 10, // プレイヤーの上からレーザーを発射
-        verticalSpeed: (Math.random() - 0.5) * 2 // ランダムな縦方向の速度
+        verticalSpeed: (Math.random() - 0.5) * 5 // 縦方向の速度を大きくする
       });
     }
   }
