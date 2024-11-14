@@ -37,6 +37,24 @@ body {
   display: none;
 }
 
+.score {
+  position: absolute;
+  top: 50px;
+  right: 10px;
+  color: white;
+  font-size: 20px;
+  display: none;
+}
+
+.high-score {
+  position: absolute;
+  top: 80px;
+  right: 10px;
+  color: white;
+  font-size: 20px;
+  display: none;
+}
+
 .difficulty-buttons {
   position: absolute;
   top: 50%;
@@ -62,6 +80,8 @@ body {
 <body>
 <canvas id="gameCanvas" width="600" height="400"></canvas>
 <div class="timer">タイム:</div>
+<div class="score">現在のスコア: </div>
+<div class="high-score">最高記録: </div>
 <div class="difficulty-buttons">
   <button class="difficulty-button" id="easyButton">EASY</button>
   <button class="difficulty-button" id="hardButton">HARD</button>
@@ -71,6 +91,8 @@ body {
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const timerElement = document.querySelector('.timer');
+const scoreElement = document.querySelector('.score');
+const highScoreElement = document.querySelector('.high-score');
 const easyButton = document.getElementById('easyButton');
 const hardButton = document.getElementById('hardButton');
 
@@ -109,6 +131,8 @@ const hardObstacleInterval = 350;
 
 let obstacleTimer = null;
 
+let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0;
+
 easyButton.addEventListener('click', () => {
   difficulty = 'easy';
   startGame();
@@ -124,6 +148,10 @@ function startGame() {
   hardButton.style.display = 'none';
 
   timerElement.style.display = 'block'; 
+  scoreElement.style.display = 'block';
+  highScoreElement.style.display = 'block';
+
+  highScoreElement.textContent = `最高記録: ${highScore}`;
 
   obstacleTimer = setInterval(() => {
     generateObstacle();
@@ -247,6 +275,9 @@ function gameLoop(timestamp) {
     let seconds = Math.floor(elapsedTime % 60);
 
     timerElement.textContent = `タイム: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+    score = avoidedObstacles * 10 + Math.floor((timestamp - startTime) / 1000);
+    scoreElement.textContent = `現在のスコア: ${score}`;
   }
 
   if (isGameOver) {
@@ -265,6 +296,16 @@ function gameLoop(timestamp) {
     ctx.fillStyle = 'white';
     ctx.textAlign = 'center';
     ctx.fillText(`SCORE: ${score}`, canvas.width / 2, canvas.height / 2 + 30);
+
+    if (score > highScore) {
+      highScore = score;
+      localStorage.setItem('highScore', highScore);
+    }
+    highScoreElement.textContent = `最高記録: ${highScore}`;
+
+    setTimeout(() => {
+      location.reload(); // 3秒後にページを再読み込み
+    }, 3000);
 
   } else {
     gameLoop.animationFrame = requestAnimationFrame(gameLoop);
