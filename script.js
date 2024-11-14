@@ -363,13 +363,9 @@ function gameLoop(timestamp) {
 }
 
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'ArrowUp') {
+  if (event.key === 'ArrowUp' || event.key === 'w') {
     isUpPressed = true;
-  } else if (event.key === 'ArrowDown') {
-    isDownPressed = true;
-  } else if (event.key === 'w') {
-    isUpPressed = true;
-  } else if (event.key === 's') {
+  } else if (event.key === 'ArrowDown' || event.key === 's') {
     isDownPressed = true;
   } else if (event.key === ' ') {
     // スペースキーを押すとレーザーを発射
