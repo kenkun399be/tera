@@ -90,16 +90,28 @@ function startGame() {
   hardButton.style.display = 'none';
   oniButton.style.display = 'none';
 
-  timerElement.style.display = 'block'; 
+  timerElement.style.display = 'block';
   scoreElement.style.display = 'block';
   highScoreElement.style.display = 'block';
 
   highScoreElement.textContent = `最高記録: ${highScore}`;
 
+  // 障害物タイマーをクリア
+  clearInterval(obstacleTimer);
+
+  // 新しい障害物タイマーを設定
   obstacleTimer = setInterval(() => {
     generateObstacle();
   }, difficulty === 'easy' ? easyObstacleInterval : difficulty === 'hard' ? hardObstacleInterval : oniObstacleInterval);
 
+  // ゲームオーバーフラグをリセット
+  isGameOver = false;
+
+  // スコアをリセット
+  score = 0;
+  avoidedObstacles = 0;
+
+  // ゲームループを開始
   gameLoop();
 }
 
@@ -255,6 +267,7 @@ function gameLoop(timestamp) {
     obstacle.rotation += obstacle.rotationSpeed;
   });
 
+  // プレイヤーと障害物の衝突判定
   obstacles.forEach(obstacle => {
     if (
       player.x - player.radius < obstacle.x + obstacle.width &&
@@ -268,6 +281,7 @@ function gameLoop(timestamp) {
     }
   });
 
+  // プレイヤーを描画
   ctx.beginPath();
   ctx.arc(player.x, player.y, player.radius, 0, 2 * Math.PI);
   ctx.fillStyle = 'black';
@@ -278,6 +292,7 @@ function gameLoop(timestamp) {
   ctx.lineWidth = 2;
   ctx.stroke();
 
+  // 障害物を描画
   obstacles.forEach(obstacle => {
     ctx.save();
     ctx.translate(obstacle.x + obstacle.width / 2, obstacle.y + obstacle.height / 2);
@@ -295,6 +310,7 @@ function gameLoop(timestamp) {
     ctx.restore();
   });
 
+  // 画面の枠を描画
   const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
   gradient.addColorStop(0, 'rgba(0, 255, 255, 1)');
   gradient.addColorStop(1, 'rgba(255, 0, 255, 1)');
@@ -302,6 +318,7 @@ function gameLoop(timestamp) {
   ctx.lineWidth = 3;
   ctx.strokeRect(0, 0, canvas.width, canvas.height);
 
+  // ゲームオーバーでない場合、スコアと時間を更新して表示
   if (!isGameOver) {
     let elapsedTime = (timestamp - startTime) / 1000;
     let minutes = Math.floor(elapsedTime / 60);
@@ -313,8 +330,8 @@ function gameLoop(timestamp) {
     scoreElement.textContent = `現在のスコア: ${score}`;
   }
 
+  // ゲームオーバーの場合、ゲームオーバーメッセージを表示
   if (isGameOver) {
-   
     gameOverScale += 0.01;
     gameOverFontSize = gameOverScale * 50;
 
@@ -322,8 +339,6 @@ function gameLoop(timestamp) {
     ctx.fillStyle = 'white';
     ctx.textAlign = 'center';
     ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - 30);
-
-    score = avoidedObstacles * 10 + Math.floor((timestamp - startTime) / 1000);
 
     ctx.font = `${gameOverFontSize * 0.7}px Arial`;
     ctx.fillStyle = 'white';
@@ -335,6 +350,7 @@ function gameLoop(timestamp) {
       highScore = score;
       localStorage.setItem('highScore', highScore);
     }
+    highScoreElement.textContent = `最高記録: ${highScore}`;
 
     // ゲームオーバー時のボタン表示
     easyButton.style.display = 'block';
@@ -342,6 +358,7 @@ function gameLoop(timestamp) {
     oniButton.style.display = 'block';
   }
 
+  // ゲームループを継続
   gameLoop.animationFrame = requestAnimationFrame(gameLoop);
 }
 
@@ -356,7 +373,7 @@ document.addEventListener('keydown', (event) => {
       lasers.push({
         x: player.x + player.radius, // プレイヤーの位置から発射
         y: player.y,
-        verticalSpeed: 0 // 縦方向の速度は0
+        verticalSpeed: (Math.random() - 0.5) * 15 // 縦方向の速度をさらに大きくする
       });
     }
   }
