@@ -416,7 +416,6 @@ window.addEventListener('keydown', (event) => {
   } else if (event.key === 's' || event.key === 'ArrowDown') {
     isDownPressed = true;
   } else if (event.key === ' ' && difficulty === 'oni' && lasers.length < maxLasers) { // 鬼畜モードでスペースキーが押され、レーザー数が最大数未満の場合
-    if (Math.random() < 0.1) { // 10%の確率で全方向レーザー
       const angleStep = 5; // レーザーの角度間隔
       for (let i = 0; i < 360; i += angleStep) {
         const angle = i * Math.PI / 180;
@@ -425,16 +424,9 @@ window.addEventListener('keydown', (event) => {
         lasers.push({
           x: laserX,
           y: laserY,
-          verticalSpeed: (Math.random() - 0.5) * 5 // 縦方向の速度を大きくする
+          verticalSpeed: (Math.random() - 0.5) * 15 // 縦方向の速度をさらに大きくする
         });
       }
-    } else { // 通常のレーザー
-      lasers.push({
-        x: player.x,
-        y: player.y - 10, // プレイヤーの上からレーザーを発射
-        verticalSpeed: (Math.random() - 0.5) * 5 // 縦方向の速度を大きくする
-      });
-    }
   }
 });
 
