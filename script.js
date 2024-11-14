@@ -356,6 +356,11 @@ function gameLoop(timestamp) {
       localStorage.setItem('highScore', highScore);
     }
     highScoreElement.textContent = `最高記録: ${highScore}`;
+
+    // 3秒後にページをリロード
+    setTimeout(() => {
+      location.reload();
+    }, 3000);
   }
 
   // ゲームループを継続
