@@ -133,6 +133,12 @@ let obstacleTimer = null;
 
 let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0;
 
+let isInvulnerable = false;
+let invulnerabilityStartTime = null;
+const invulnerabilityDuration = 300000; // 5分間
+
+let inputCode = '';
+
 easyButton.addEventListener('click', () => {
   difficulty = 'easy';
   startGame();
@@ -222,22 +228,28 @@ function gameLoop(timestamp) {
     obstacle.rotation += obstacle.rotationSpeed;
   });
 
-  obstacles.forEach(obstacle => {
-    if (
-      player.x - player.radius < obstacle.x + obstacleWidth &&
-      player.x + player.radius > obstacle.x &&
-      player.y - player.radius < obstacle.y + obstacleHeight &&
-      player.y + player.radius > obstacle.y
-    ) {
-      isGameOver = true;
-      cancelAnimationFrame(gameLoop.animationFrame);
-      clearInterval(obstacleTimer);
-    }
-  });
+  if (!isInvulnerable) {
+    obstacles.forEach(obstacle => {
+      if (
+        player.x - player.radius < obstacle.x + obstacleWidth &&
+        player.x + player.radius > obstacle.x &&
+        player.y - player.radius < obstacle.y + obstacleHeight &&
+        player.y + player.radius > obstacle.y
+      ) {
+        isGameOver = true;
+        cancelAnimationFrame(gameLoop.animationFrame);
+        clearInterval(obstacleTimer);
+      }
+    });
+  }
 
   ctx.beginPath();
   ctx.arc(player.x, player.y, player.radius, 0, 2 * Math.PI);
-  ctx.fillStyle = 'black';
+  if (isInvulnerable) {
+    ctx.fillStyle = 'cyan';
+  } else {
+    ctx.fillStyle = 'black';
+  }
   ctx.fill();
   ctx.beginPath();
   ctx.arc(player.x, player.y, player.radius - 1, 0, 2 * Math.PI);
@@ -317,6 +329,23 @@ window.addEventListener('keydown', (event) => {
     isUpPressed = true;
   } else if (event.key === 's' || event.key === 'ArrowDown') {
     isDownPressed = true;
+  } else if (event.key === 'm') {
+    inputCode += 'm';
+    if (inputCode === 'muteki') {
+      isInvulnerable = true;
+      invulnerabilityStartTime = Date.now();
+      inputCode = ''; // 入力コードをリセット
+    }
+  } else if (event.key === 'u') {
+    inputCode += 'u';
+  } else if (event.key === 't') {
+    inputCode += 't';
+  } else if (event.key === 'e') {
+    inputCode += 'e';
+  } else if (event.key === 'k') {
+    inputCode += 'k';
+  } else if (event.key === 'i') {
+    inputCode += 'i';
   }
 });
 
@@ -327,6 +356,17 @@ window.addEventListener('keyup', (event) => {
     isDownPressed = false;
   }
 });
+
+function updateInvulnerability() {
+  if (isInvulnerable) {
+    if (Date.now() - invulnerabilityStartTime >= invulnerabilityDuration) {
+      isInvulnerable = false;
+    }
+  }
+  requestAnimationFrame(updateInvulnerability); // 継続的にチェック
+}
+
+updateInvulnerability(); // 無敵状態の更新を開始
 </script>
 </body>
 </html>
