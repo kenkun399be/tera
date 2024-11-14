@@ -111,6 +111,10 @@ function startGame() {
   score = 0;
   avoidedObstacles = 0;
 
+  // プレイヤーの位置をリセット
+  player.x = 50;
+  player.y = canvas.height / 2;
+
   // ゲームループを開始
   gameLoop();
 }
@@ -161,6 +165,7 @@ function gameLoop(timestamp) {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // プレイヤーの移動
   if (isUpPressed && player.y - player.radius > 0) {
     player.y -= player.speed;
   } else if (isDownPressed && player.y + player.radius < canvas.height) {
@@ -351,11 +356,6 @@ function gameLoop(timestamp) {
       localStorage.setItem('highScore', highScore);
     }
     highScoreElement.textContent = `最高記録: ${highScore}`;
-
-    // ゲームオーバー時のボタン表示
-    easyButton.style.display = 'block';
-    hardButton.style.display = 'block';
-    oniButton.style.display = 'block';
   }
 
   // ゲームループを継続
@@ -366,6 +366,10 @@ document.addEventListener('keydown', (event) => {
   if (event.key === 'ArrowUp') {
     isUpPressed = true;
   } else if (event.key === 'ArrowDown') {
+    isDownPressed = true;
+  } else if (event.key === 'w') {
+    isUpPressed = true;
+  } else if (event.key === 's') {
     isDownPressed = true;
   } else if (event.key === ' ') {
     // スペースキーを押すとレーザーを発射
@@ -380,9 +384,9 @@ document.addEventListener('keydown', (event) => {
 });
 
 document.addEventListener('keyup', (event) => {
-  if (event.key === 'ArrowUp') {
+  if (event.key === 'ArrowUp' || event.key === 'w') {
     isUpPressed = false;
-  } else if (event.key === 'ArrowDown') {
+  } else if (event.key === 'ArrowDown' || event.key === 's') {
     isDownPressed = false;
   }
 });
