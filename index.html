@@ -331,11 +331,6 @@ window.addEventListener('keydown', (event) => {
     isDownPressed = true;
   } else if (event.key === 'm') {
     inputCode += 'm';
-    if (inputCode === 'muteki') {
-      isInvulnerable = true;
-      invulnerabilityStartTime = Date.now();
-      inputCode = ''; // 入力コードをリセット
-    }
   } else if (event.key === 'u') {
     inputCode += 'u';
   } else if (event.key === 't') {
@@ -346,6 +341,11 @@ window.addEventListener('keydown', (event) => {
     inputCode += 'k';
   } else if (event.key === 'i') {
     inputCode += 'i';
+    if (inputCode === 'muteki') {
+      isInvulnerable = true;
+      invulnerabilityStartTime = Date.now();
+      inputCode = ''; // 入力コードをリセット
+    }
   }
 });
 
