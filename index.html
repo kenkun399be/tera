@@ -35,6 +35,14 @@ body {
   background-color: yellow; /* 大きな障害物の色 */
 }
 
+.laser {
+  position: absolute;
+  width: 5px;
+  height: 20px;
+  background-color: blue;
+  display: none;
+}
+
 .timer {
   position: absolute;
   top: 10px;
@@ -95,6 +103,8 @@ body {
   <button class="difficulty-button" id="oniButton">鬼畜</button>
 </div>
 
+<div class="laser"></div>
+
 <script>
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -104,6 +114,7 @@ const highScoreElement = document.querySelector('.high-score');
 const easyButton = document.getElementById('easyButton');
 const hardButton = document.getElementById('hardButton');
 const oniButton = document.getElementById('oniButton');
+const laserElement = document.querySelector('.laser');
 
 let player = {
   x: 50,
@@ -142,6 +153,11 @@ const oniObstacleInterval = 100; // 鬼畜モードの障害物出現間隔
 let obstacleTimer = null;
 
 let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0;
+
+let isLaserActive = false;
+let laserX = 0;
+let laserY = 0;
+let laserSpeed = 10;
 
 easyButton.addEventListener('click', () => {
   difficulty = 'easy';
@@ -226,6 +242,35 @@ function gameLoop(timestamp) {
     player.y -= player.speed;
   } else if (isDownPressed && player.y + player.radius < canvas.height) {
     player.y += player.speed;
+  }
+
+  if (isLaserActive) {
+    laserX += laserSpeed;
+    laserElement.style.left = laserX + 'px';
+    laserElement.style.top = laserY + 'px';
+    laserElement.style.display = 'block';
+
+    // レーザーが画面外に出たら非表示にする
+    if (laserX > canvas.width) {
+      isLaserActive = false;
+      laserElement.style.display = 'none';
+    }
+
+    // レーザーと障害物の衝突判定
+    obstacles.forEach((obstacle, index) => {
+      if (
+        laserX < obstacle.x + obstacle.width &&
+        laserX + 5 > obstacle.x &&
+        laserY < obstacle.y + obstacle.height &&
+        laserY + 20 > obstacle.y
+      ) {
+        // 衝突したら障害物を消す
+        obstacles.splice(index, 1);
+        avoidedObstacles++;
+        isLaserActive = false;
+        laserElement.style.display = 'none';
+      }
+    });
   }
 
   obstacles.forEach(obstacle => {
@@ -342,6 +387,10 @@ window.addEventListener('keydown', (event) => {
     isUpPressed = true;
   } else if (event.key === 's' || event.key === 'ArrowDown') {
     isDownPressed = true;
+  } else if (event.key === ' ' && difficulty === 'oni' && !isLaserActive) { // 鬼畜モードでスペースキーが押され、レーザーがアクティブでない場合
+    isLaserActive = true;
+    laserX = player.x;
+    laserY = player.y - 10; // プレイヤーの上からレーザーを発射
   }
 });
 
