@@ -165,126 +165,129 @@ function gameLoop(timestamp) {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // プレイヤーの移動
-  if (isUpPressed && player.y - player.radius > 0) {
-    player.y -= player.speed;
-  } else if (isDownPressed && player.y + player.radius < canvas.height) {
-    player.y += player.speed;
-  }
-
-  // レーザーの更新
-  lasers.forEach((laser, index) => {
-    laser.x += laserSpeed;
-    laser.y += laser.verticalSpeed; // 縦方向に移動
-
-    // 天井と床にぶつかったら跳ね返る
-    if (laser.y < 0 || laser.y > canvas.height) {
-      laser.verticalSpeed *= -1;
+  // ゲームオーバーでない場合のみ、プレイヤーや障害物、レーザーを動かす
+  if (!isGameOver) {
+    // プレイヤーの移動
+    if (isUpPressed && player.y - player.radius > 0) {
+      player.y -= player.speed;
+    } else if (isDownPressed && player.y + player.radius < canvas.height) {
+      player.y += player.speed;
     }
 
-    // レーザー要素の更新
-    if (index < laserElements.length) {
-      laserElements[index].style.left = laser.x + 'px';
-      laserElements[index].style.top = laser.y + 'px';
-      laserElements[index].style.display = 'block';
-    }
+    // レーザーの更新
+    lasers.forEach((laser, index) => {
+      laser.x += laserSpeed;
+      laser.y += laser.verticalSpeed; // 縦方向に移動
 
-    // レーザーが画面外に出たら削除
-    if (laser.x > canvas.width) {
-      lasers.splice(index, 1);
-    }
+      // 天井と床にぶつかったら跳ね返る
+      if (laser.y < 0 || laser.y > canvas.height) {
+        laser.verticalSpeed *= -1;
+      }
 
-    // レーザーと障害物の衝突判定
-    obstacles.forEach((obstacle, obstacleIndex) => {
-      if (
-        laser.x < obstacle.x + obstacle.width &&
-        laser.x + 5 > obstacle.x &&
-        laser.y < obstacle.y + obstacle.height &&
-        laser.y + 20 > obstacle.y
-      ) {
-        // 衝突したら障害物を消す
-        obstacles.splice(obstacleIndex, 1);
-        avoidedObstacles++;
-        lasers.splice(index, 1); // 衝突したレーザーも削除
+      // レーザー要素の更新
+      if (index < laserElements.length) {
+        laserElements[index].style.left = laser.x + 'px';
+        laserElements[index].style.top = laser.y + 'px';
+        laserElements[index].style.display = 'block';
+      }
 
-        // 赤いレーザーを発射
-        if (redLasers.length < maxRedLasers) {
-          redLasers.push({
-            x: obstacle.x + obstacle.width / 2, // 障害物の真ん中から発射
-            y: obstacle.y + obstacle.height / 2,
-            targetX: player.x,
-            targetY: player.y
-          });
+      // レーザーが画面外に出たら削除
+      if (laser.x > canvas.width) {
+        lasers.splice(index, 1);
+      }
+
+      // レーザーと障害物の衝突判定
+      obstacles.forEach((obstacle, obstacleIndex) => {
+        if (
+          laser.x < obstacle.x + obstacle.width &&
+          laser.x + 5 > obstacle.x &&
+          laser.y < obstacle.y + obstacle.height &&
+          laser.y + 20 > obstacle.y
+        ) {
+          // 衝突したら障害物を消す
+          obstacles.splice(obstacleIndex, 1);
+          avoidedObstacles++;
+          lasers.splice(index, 1); // 衝突したレーザーも削除
+
+          // 赤いレーザーを発射
+          if (redLasers.length < maxRedLasers) {
+            redLasers.push({
+              x: obstacle.x + obstacle.width / 2, // 障害物の真ん中から発射
+              y: obstacle.y + obstacle.height / 2,
+              targetX: player.x,
+              targetY: player.y
+            });
+          }
         }
+      });
+    });
+
+    // 赤いレーザーの更新
+    redLasers.forEach((redLaser, index) => {
+      // プレイヤーの方向に移動
+      const angle = Math.atan2(redLaser.targetY - redLaser.y, redLaser.targetX - redLaser.x);
+      redLaser.x += redLaserSpeed * Math.cos(angle);
+      redLaser.y += redLaserSpeed * Math.sin(angle);
+
+      // 赤いレーザー要素の更新
+      if (index < redLaserElements.length) {
+        redLaserElements[index].style.left = redLaser.x + 'px';
+        redLaserElements[index].style.top = redLaser.y + 'px';
+        redLaserElements[index].style.display = 'block';
+      }
+
+      // 赤いレーザーが画面外に出たら削除
+      if (redLaser.x > canvas.width || redLaser.x < 0 || redLaser.y < 0 || redLaser.y > canvas.height) {
+        redLasers.splice(index, 1);
+      }
+
+      // 赤いレーザーとプレイヤーの衝突判定
+      if (
+        redLaser.x < player.x + player.radius &&
+        redLaser.x + 5 > player.x - player.radius &&
+        redLaser.y < player.y + player.radius &&
+        redLaser.y + 20 > player.y - player.radius
+      ) {
+        isGameOver = true;
+        cancelAnimationFrame(gameLoop.animationFrame);
+        clearInterval(obstacleTimer);
+        redLasers.splice(index, 1); // 衝突した赤いレーザーも削除
       }
     });
-  });
 
-  // 赤いレーザーの更新
-  redLasers.forEach((redLaser, index) => {
-    // プレイヤーの方向に移動
-    const angle = Math.atan2(redLaser.targetY - redLaser.y, redLaser.targetX - redLaser.x);
-    redLaser.x += redLaserSpeed * Math.cos(angle);
-    redLaser.y += redLaserSpeed * Math.sin(angle);
+    obstacles.forEach(obstacle => {
+      let elapsedTime = timestamp - startTime;
+      let obstacleSpeed = obstacle.speed * Math.pow(elapsedTime / 1000, 0.1); // 速度を秒単位で計算
+      obstacle.x -= obstacleSpeed; 
 
-    // 赤いレーザー要素の更新
-    if (index < redLaserElements.length) {
-      redLaserElements[index].style.left = redLaser.x + 'px';
-      redLaserElements[index].style.top = redLaser.y + 'px';
-      redLaserElements[index].style.display = 'block';
-    }
-
-    // 赤いレーザーが画面外に出たら削除
-    if (redLaser.x > canvas.width || redLaser.x < 0 || redLaser.y < 0 || redLaser.y > canvas.height) {
-      redLasers.splice(index, 1);
-    }
-
-    // 赤いレーザーとプレイヤーの衝突判定
-    if (
-      redLaser.x < player.x + player.radius &&
-      redLaser.x + 5 > player.x - player.radius &&
-      redLaser.y < player.y + player.radius &&
-      redLaser.y + 20 > player.y - player.radius
-    ) {
-      isGameOver = true;
-      cancelAnimationFrame(gameLoop.animationFrame);
-      clearInterval(obstacleTimer);
-      redLasers.splice(index, 1); // 衝突した赤いレーザーも削除
-    }
-  });
-
-  obstacles.forEach(obstacle => {
-    let elapsedTime = timestamp - startTime;
-    let obstacleSpeed = obstacle.speed * Math.pow(elapsedTime / 1000, 0.1); // 速度を秒単位で計算
-    obstacle.x -= obstacleSpeed; 
-
-    if (difficulty === 'hard' || difficulty === 'oni') {
-      obstacle.y += obstacle.verticalSpeed;
-      if (obstacle.y < 0 || obstacle.y + obstacle.height > canvas.height) {
-        obstacle.verticalSpeed *= -1;
+      if (difficulty === 'hard' || difficulty === 'oni') {
+        obstacle.y += obstacle.verticalSpeed;
+        if (obstacle.y < 0 || obstacle.y + obstacle.height > canvas.height) {
+          obstacle.verticalSpeed *= -1;
+        }
       }
-    }
 
-    if (obstacle.x < -obstacle.width) {
-      obstacles.splice(obstacles.indexOf(obstacle), 1);
-      avoidedObstacles++;
-    }
-    obstacle.rotation += obstacle.rotationSpeed;
-  });
+      if (obstacle.x < -obstacle.width) {
+        obstacles.splice(obstacles.indexOf(obstacle), 1);
+        avoidedObstacles++;
+      }
+      obstacle.rotation += obstacle.rotationSpeed;
+    });
 
-  // プレイヤーと障害物の衝突判定
-  obstacles.forEach(obstacle => {
-    if (
-      player.x - player.radius < obstacle.x + obstacle.width &&
-      player.x + player.radius > obstacle.x &&
-      player.y - player.radius < obstacle.y + obstacle.height &&
-      player.y + player.radius > obstacle.y
-    ) {
-      isGameOver = true;
-      cancelAnimationFrame(gameLoop.animationFrame);
-      clearInterval(obstacleTimer);
-    }
-  });
+    // プレイヤーと障害物の衝突判定
+    obstacles.forEach(obstacle => {
+      if (
+        player.x - player.radius < obstacle.x + obstacle.width &&
+        player.x + player.radius > obstacle.x &&
+        player.y - player.radius < obstacle.y + obstacle.height &&
+        player.y + player.radius > obstacle.y
+      ) {
+        isGameOver = true;
+        cancelAnimationFrame(gameLoop.animationFrame);
+        clearInterval(obstacleTimer);
+      }
+    });
+  }
 
   // プレイヤーを描画
   ctx.beginPath();
