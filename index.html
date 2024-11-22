@@ -313,7 +313,7 @@ function gameLoop(timestamp) {
       highScore = score;
       localStorage.setItem('highScore', highScore);
     }
-    highScoreElement.textContent = `自己ベスト: ${highScore}`;
+    highScoreElement.textContent = `最高記録: ${highScore}`;
 
     setTimeout(() => {
       location.reload(); // 3秒後にページを再読み込み
