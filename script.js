@@ -242,10 +242,8 @@ function gameLoop(timestamp) {
     ) {
       // 上下キー同時押しで障害物を破壊
       if (isUpPressed && isDownPressed) {
-        innerCircleColor = 'black'; // 内側の円を黒色に戻す
 
         if (!hasDestroyedObstacle) { // 障害物をまだ破壊していない場合のみ
-          obstacles.splice(index, 1); // 障害物を削除
           hasDestroyedObstacle = true; // 障害物を破壊したことを記録
           return; // 衝突判定を終了
         }
