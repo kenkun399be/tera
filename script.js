@@ -10,16 +10,8 @@ const skinUploadContainer = document.getElementById('skinUploadContainer');
 const skinUploadInput = document.getElementById('skinUploadInput');
 const skinPreview = document.getElementById('skinPreview');
 const closeButton = document.getElementById('closeButton');
-const resetSkinButton = document.createElement('button'); // スキングリセットボタンを作成
-const decideSkinButton = document.createElement('button'); // スキン決定ボタンを作成
-
-resetSkinButton.textContent = 'リセット'; // ボタンのテキストを設定
-resetSkinButton.classList.add('close-button'); // ボタンにスタイルクラスを追加
-skinUploadContainer.appendChild(resetSkinButton); // ボタンをスキンアップロードコンテナに追加
-
-decideSkinButton.textContent = '決定'; // ボタンのテキストを設定
-decideSkinButton.classList.add('close-button'); // ボタンにスタイルクラスを追加
-skinUploadContainer.appendChild(decideSkinButton); // ボタンをスキンアップロードコンテナに追加
+const resetSkinButton = document.getElementById('resetSkinButton'); // スキングリセットボタンを取得
+const decideSkinButton = document.getElementById('decideSkinButton'); // スキン決定ボタンを取得
 
 let player = {
   x: 50,
