@@ -135,9 +135,11 @@ let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getIte
 
 let isInvulnerable = false;
 let invulnerabilityStartTime = null;
-const invulnerabilityDuration = 3000; // 5秒
+const invulnerabilityDuration = 3600000; // 1時間 (ミリ秒)
 
 let inputCode = '';
+
+let speedMultiplier = 1;
 
 easyButton.addEventListener('click', () => {
   difficulty = 'easy';
@@ -204,18 +206,18 @@ function gameLoop(timestamp) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (isUpPressed && player.y - player.radius > 0) {
-    player.y -= player.speed;
+    player.y -= player.speed * speedMultiplier;
   } else if (isDownPressed && player.y + player.radius < canvas.height) {
-    player.y += player.speed;
+    player.y += player.speed * speedMultiplier;
   }
 
   obstacles.forEach(obstacle => {
     let elapsedTime = timestamp - startTime;
-    let obstacleSpeed = obstacle.speed * Math.pow(elapsedTime / 1000, 0.1); // 速度を秒単位で計算
+    let obstacleSpeed = obstacle.speed * Math.pow(elapsedTime / 1000, 0.1) * speedMultiplier; // 速度を秒単位で計算
     obstacle.x -= obstacleSpeed; 
 
     if (difficulty === 'hard') {
-      obstacle.y += obstacle.verticalSpeed;
+      obstacle.y += obstacle.verticalSpeed * speedMultiplier;
       if (obstacle.y < 0 || obstacle.y + obstacleHeight > canvas.height) {
         obstacle.verticalSpeed *= -1;
       }
@@ -225,7 +227,7 @@ function gameLoop(timestamp) {
       obstacles.splice(obstacles.indexOf(obstacle), 1);
       avoidedObstacles++;
     }
-    obstacle.rotation += obstacle.rotationSpeed;
+    obstacle.rotation += obstacle.rotationSpeed * speedMultiplier;
   });
 
   if (!isInvulnerable) {
@@ -346,6 +348,8 @@ window.addEventListener('keydown', (event) => {
       invulnerabilityStartTime = Date.now();
       inputCode = ''; // 入力コードをリセット
     }
+  } else if (event.key === ' ') {
+    speedMultiplier = 60;
   }
 });
 
@@ -354,6 +358,8 @@ window.addEventListener('keyup', (event) => {
     isUpPressed = false;
   } else if (event.key === 's' || event.key === 'ArrowDown') {
     isDownPressed = false;
+  } else if (event.key === ' ') {
+    speedMultiplier = 1; // スペースキーを離したら速度を元に戻す
   }
 });
 
