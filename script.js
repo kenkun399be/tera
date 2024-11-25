@@ -10,8 +10,16 @@ const skinUploadContainer = document.getElementById('skinUploadContainer');
 const skinUploadInput = document.getElementById('skinUploadInput');
 const skinPreview = document.getElementById('skinPreview');
 const closeButton = document.getElementById('closeButton');
-const resetSkinButton = document.getElementById('resetSkinButton'); // スキングリセットボタンを取得
-const decideSkinButton = document.getElementById('decideSkinButton'); // スキン決定ボタンを取得
+const resetSkinButton = document.createElement('button'); // スキングリセットボタンを作成
+const decideSkinButton = document.createElement('button'); // スキン決定ボタンを作成
+
+resetSkinButton.textContent = 'リセット'; // ボタンのテキストを設定
+resetSkinButton.classList.add('close-button'); // ボタンにスタイルクラスを追加
+skinUploadContainer.appendChild(resetSkinButton); // ボタンをスキンアップロードコンテナに追加
+
+decideSkinButton.textContent = '決定'; // ボタンのテキストを設定
+decideSkinButton.classList.add('close-button'); // ボタンにスタイルクラスを追加
+skinUploadContainer.appendChild(decideSkinButton); // ボタンをスキンアップロードコンテナに追加
 
 let player = {
   x: 50,
@@ -235,8 +243,12 @@ function gameLoop(timestamp) {
       // 上下キー同時押しで障害物を破壊
       if (isUpPressed && isDownPressed) {
         innerCircleColor = 'black'; // 内側の円を黒色に戻す
-        obstacles.splice(index, 1); // 障害物を削除
-        return; // 衝突判定を終了
+
+        if (!hasDestroyedObstacle) { // 障害物をまだ破壊していない場合のみ
+          obstacles.splice(index, 1); // 障害物を削除
+          hasDestroyedObstacle = true; // 障害物を破壊したことを記録
+          return; // 衝突判定を終了
+        }
       }
 
       // その他の場合、ゲームオーバー
