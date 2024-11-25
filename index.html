@@ -217,7 +217,7 @@ function gameLoop(timestamp) {
   obstacles.forEach(obstacle => {
     let elapsedTime = timestamp - startTime;
     // 障害物の速度を時間加速倍率で掛ける
-    let obstacleSpeed = obstacle.speed * Math.pow(elapsedTime / 1000, 0.1) * timeAccelerationFactor; // 速度を秒単位で計算
+    let obstacleSpeed = obstacle.speed * timeAccelerationFactor; // 速度を秒単位で計算
     obstacle.x -= obstacleSpeed; 
 
     if (difficulty === 'hard') {
