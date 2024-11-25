@@ -66,7 +66,7 @@ const invulnerabilityDuration = 3600000; // 1時間 (ミリ秒)
 
 let inputCode = '';
 
-let hasDestroyedObstacle = true; // 障害物を破壊したかどうか
+let hasDestroyedObstacle = false; // 障害物を破壊したかどうか
 
 let innerCircleColor = 'black'; // 内側の円の初期色
 
@@ -243,7 +243,8 @@ function gameLoop(timestamp) {
       // 上下キー同時押しで障害物を破壊
       if (isUpPressed && isDownPressed) {
         innerCircleColor = 'black'; // 内側の円を黒色に戻す
-        }
+        obstacles.splice(index, 1); // 障害物を削除
+        return; // 衝突判定を終了
       }
 
       // その他の場合、ゲームオーバー
