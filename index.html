@@ -100,7 +100,8 @@ let player = {
   x: 50,
   y: canvas.height / 2,
   radius: 10,
-  speed: 5
+  speed: 5,
+  color: 'white' // プレイヤーの色を追加
 };
 
 let obstacleWidth = 20;
@@ -139,8 +140,9 @@ const invulnerabilityDuration = 3600000; // 1時間 (ミリ秒)
 
 let inputCode = '';
 
-let isTimeAccelerated = false; // 時間加速フラグ
-let timeAccelerationFactor = 60; // 時間加速倍率
+let hasDestroyedObstacle = false; // 障害物を破壊したかどうか
+
+let innerCircleColor = 'black'; // 内側の円の初期色
 
 easyButton.addEventListener('click', () => {
   difficulty = 'easy';
@@ -162,10 +164,9 @@ function startGame() {
 
   highScoreElement.textContent = `最高記録: ${highScore}`;
 
-  // 障害物の生成間隔を時間加速倍率で割る
   obstacleTimer = setInterval(() => {
     generateObstacle();
-  }, (difficulty === 'easy' ? easyObstacleInterval : hardObstacleInterval) / timeAccelerationFactor);
+  }, difficulty === 'easy' ? easyObstacleInterval : hardObstacleInterval);
 
   gameLoop();
 }
@@ -207,21 +208,27 @@ function gameLoop(timestamp) {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // プレイヤーの速度を時間加速倍率で掛ける
-  if (isUpPressed && player.y - player.radius > 0) {
-    player.y -= player.speed * timeAccelerationFactor;
-  } else if (isDownPressed && player.y + player.radius < canvas.height) {
-    player.y += player.speed * timeAccelerationFactor;
+  if (isUpPressed && isDownPressed) {
+    player.color = 'red'; // 上下キー同時押しで赤色
+    player.y -= 0; // プレイヤーを動かさない
+    innerCircleColor = 'red'; // 内側の円を赤色に
+  } else {
+    player.color = 'white'; // 上下キー同時押し以外で白色
+    if (isUpPressed && player.y - player.radius > 0) {
+      player.y -= player.speed;
+    } else if (isDownPressed && player.y + player.radius < canvas.height) {
+      player.y += player.speed;
+    }
+    innerCircleColor = 'black'; // 内側の円を黒色に戻す
   }
 
   obstacles.forEach(obstacle => {
     let elapsedTime = timestamp - startTime;
-    // 障害物の速度を時間加速倍率で掛ける
-    let obstacleSpeed = obstacle.speed * timeAccelerationFactor; // 速度を秒単位で計算
+    let obstacleSpeed = obstacle.speed * Math.pow(elapsedTime / 1000, 0.1); // 速度を秒単位で計算
     obstacle.x -= obstacleSpeed; 
 
     if (difficulty === 'hard') {
-      obstacle.y += obstacle.verticalSpeed * timeAccelerationFactor;
+      obstacle.y += obstacle.verticalSpeed;
       if (obstacle.y < 0 || obstacle.y + obstacleHeight > canvas.height) {
         obstacle.verticalSpeed *= -1;
       }
@@ -231,37 +238,66 @@ function gameLoop(timestamp) {
       obstacles.splice(obstacles.indexOf(obstacle), 1);
       avoidedObstacles++;
     }
-    obstacle.rotation += obstacle.rotationSpeed * timeAccelerationFactor;
+    obstacle.rotation += obstacle.rotationSpeed;
   });
 
-  if (!isInvulnerable) {
-    obstacles.forEach(obstacle => {
-      if (
-        player.x - player.radius < obstacle.x + obstacleWidth &&
-        player.x + player.radius > obstacle.x &&
-        player.y - player.radius < obstacle.y + obstacleHeight &&
-        player.y + player.radius > obstacle.y
-      ) {
-        isGameOver = true;
-        cancelAnimationFrame(gameLoop.animationFrame);
-        clearInterval(obstacleTimer);
-      }
-    });
-  }
+  // 障害物との衝突判定 (障害物を破壊)
+  obstacles.forEach((obstacle, index) => {
+    if (
+      player.x - player.radius < obstacle.x + obstacleWidth &&
+      player.x + player.radius > obstacle.x &&
+      player.y - player.radius < obstacle.y + obstacleHeight &&
+      player.y + player.radius > obstacle.y
+    ) {
+      // 上下キー同時押しで障害物を破壊
+      if (isUpPressed && isDownPressed) {
+        innerCircleColor = 'black'; // 内側の円を黒色に戻す
 
-  ctx.beginPath();
-  ctx.arc(player.x, player.y, player.radius, 0, 2 * Math.PI);
-  if (isInvulnerable) {
-    ctx.fillStyle = 'cyan';
+        if (!hasDestroyedObstacle) { // 障害物をまだ破壊していない場合のみ
+          obstacles.splice(index, 1); // 障害物を削除
+          hasDestroyedObstacle = true; // 障害物を破壊したことを記録
+          return; // 衝突判定を終了
+        }
+      }
+
+      // その他の場合、ゲームオーバー
+      isGameOver = true;
+      cancelAnimationFrame(gameLoop.animationFrame);
+      clearInterval(obstacleTimer);
+    }
+  });
+
+  // プレイヤーを描画
+  if (isUpPressed && isDownPressed) {
+    // 上下キー同時押しで赤の部分を非表示にする
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.radius * 0.8, 0, 2 * Math.PI); // 半径を調整
+    ctx.fillStyle = innerCircleColor; // 内側の円の色を使用
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.radius - 1, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    ctx.stroke();
   } else {
-    ctx.fillStyle = 'black';
+    // 上下キー同時押し以外で通常通り表示する
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.radius, 0, 2 * Math.PI);
+    ctx.fillStyle = player.color; // プレイヤーの色を使用
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.radius * 0.8, 0, 2 * Math.PI); // 半径を調整
+    ctx.fillStyle = innerCircleColor; // 内側の円の色を使用
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.radius - 1, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    ctx.stroke();
   }
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(player.x, player.y, player.radius - 1, 0, 2 * Math.PI);
-  ctx.strokeStyle = 'white';
-  ctx.lineWidth = 2;
-  ctx.stroke();
 
   obstacles.forEach(obstacle => {
     ctx.save();
@@ -288,13 +324,7 @@ function gameLoop(timestamp) {
   ctx.strokeRect(0, 0, canvas.width, canvas.height);
 
   if (!isGameOver) {
-    let elapsedTime = (timestamp - startTime) / 1000; // 経過時間
-
-    // 時間加速状態の場合、elapsedTime を timeAccelerationFactor で割る
-    if (isTimeAccelerated) {
-      elapsedTime /= timeAccelerationFactor; 
-    }
-
+    let elapsedTime = (timestamp - startTime) / 1000;
     let minutes = Math.floor(elapsedTime / 60);
     let seconds = Math.floor(elapsedTime % 60);
 
@@ -355,32 +385,24 @@ window.addEventListener('keydown', (event) => {
     inputCode += 'i';
     if (inputCode === 'muteki') {
       isInvulnerable = true;
-      invulnerabilityStartTime = Date.now();
       inputCode = ''; // 入力コードをリセット
     }
-  } else if (event.key === ' ') { // スペースキーが押された時
-    isTimeAccelerated = !isTimeAccelerated; // 時間加速状態を切り替え
   }
 });
 
 window.addEventListener('keyup', (event) => {
   if (event.key === 'w' || event.key === 'ArrowUp') {
     isUpPressed = false;
+    hasDestroyedObstacle = false; // 上キーを離すと破壊可能状態に戻す
+    player.color = 'white'; // 上キーを離すとプレイヤーの色を白に戻す
+    innerCircleColor = 'black'; // 内側の円を黒色に戻す
   } else if (event.key === 's' || event.key === 'ArrowDown') {
     isDownPressed = false;
+    hasDestroyedObstacle = false; // 下キーを離すと破壊可能状態に戻す
+    player.color = 'white'; // 下キーを離すとプレイヤーの色を白に戻す
+    innerCircleColor = 'black'; // 内側の円を黒色に戻す
   }
 });
-
-function updateInvulnerability() {
-  if (isInvulnerable) {
-    if (Date.now() - invulnerabilityStartTime >= invulnerabilityDuration) {
-      isInvulnerable = false;
-    }
-  }
-  requestAnimationFrame(updateInvulnerability); // 継続的にチェック
-}
-
-updateInvulnerability(); // 無敵状態の更新を開始
 </script>
 </body>
 </html>
