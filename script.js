@@ -10,6 +10,16 @@ const skinUploadContainer = document.getElementById('skinUploadContainer');
 const skinUploadInput = document.getElementById('skinUploadInput');
 const skinPreview = document.getElementById('skinPreview');
 const closeButton = document.getElementById('closeButton');
+const resetSkinButton = document.createElement('button'); // スキングリセットボタンを作成
+const decideSkinButton = document.createElement('button'); // スキン決定ボタンを作成
+
+resetSkinButton.textContent = 'リセット'; // ボタンのテキストを設定
+resetSkinButton.classList.add('close-button'); // ボタンにスタイルクラスを追加
+skinUploadContainer.appendChild(resetSkinButton); // ボタンをスキンアップロードコンテナに追加
+
+decideSkinButton.textContent = '決定'; // ボタンのテキストを設定
+decideSkinButton.classList.add('close-button'); // ボタンにスタイルクラスを追加
+skinUploadContainer.appendChild(decideSkinButton); // ボタンをスキンアップロードコンテナに追加
 
 let player = {
   x: 50,
@@ -60,6 +70,20 @@ let hasDestroyedObstacle = false; // 障害物を破壊したかどうか
 
 let innerCircleColor = 'black'; // 内側の円の初期色
 
+// ローカルストレージからスキンの画像データを取得してプレビューに表示
+function updateSkinPreview() {
+  const savedSkin = localStorage.getItem('playerSkin');
+  if (savedSkin) {
+    const img = new Image();
+    img.onload = () => {
+      skinPreview.innerHTML = `<img src="${savedSkin}">`;
+    };
+    img.src = savedSkin;
+  } else {
+    skinPreview.innerHTML = ''; // 画像がない場合はプレビューをクリア
+  }
+}
+
 easyButton.addEventListener('click', () => {
   difficulty = 'easy';
   startGame();
@@ -72,6 +96,8 @@ hardButton.addEventListener('click', () => {
 
 skinButton.addEventListener('click', () => {
   skinUploadContainer.style.display = 'flex';
+  // ローカルストレージからスキンの画像データを取得してプレビューに表示
+  updateSkinPreview();
 });
 
 closeButton.addEventListener('click', () => {
@@ -83,15 +109,31 @@ skinUploadInput.addEventListener('change', (event) => {
   if (file) {
     const reader = new FileReader();
     reader.onload = (e) => {
-      player.image = new Image();
-      player.image.src = e.target.result;
-      player.image.onload = () => {
-        skinPreview.innerHTML = `<img src="${e.target.result}">`;
-        // 画像データをローカルストレージに保存
-        localStorage.setItem('playerSkin', e.target.result);
-      };
+      const imageData = e.target.result;
+      // 画像データをローカルストレージに保存 (Base64 エンコード)
+      localStorage.setItem('playerSkin', imageData);
+      // 画像を表示
+      skinPreview.innerHTML = `<img src="${imageData}">`;
     };
     reader.readAsDataURL(file);
+  }
+});
+
+resetSkinButton.addEventListener('click', () => {
+  // ローカルストレージからスキンの画像データを削除
+  localStorage.removeItem('playerSkin');
+  // プレビューを更新
+  updateSkinPreview();
+});
+
+decideSkinButton.addEventListener('click', () => {
+  // スキン選択画面を閉じる
+  skinUploadContainer.style.display = 'none';
+  // ローカルストレージからスキンの画像データを取得してプレイヤーに適用
+  const savedSkin = localStorage.getItem('playerSkin');
+  if (savedSkin) {
+    player.image = new Image();
+    player.image.src = savedSkin;
   }
 });
 
@@ -218,7 +260,20 @@ function gameLoop(timestamp) {
 
   // プレイヤーを描画
   if (player.image) {
-    ctx.drawImage(player.image, player.x - player.radius, player.y - player.radius, player.radius * 2, player.radius * 2);
+    // 円形にクリッピング
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.radius * 2, 0, Math.PI * 2);
+    ctx.clip();
+    
+    // 画像を拡大して描画
+    ctx.drawImage(player.image, player.x - player.radius * 2, player.y - player.radius * 2, player.radius * 4, player.radius * 4);
+    // 画像をぼかして描画
+    ctx.filter = 'blur(4px)';
+    ctx.drawImage(player.image, player.x - player.radius * 2, player.y - player.radius * 2, player.radius * 4, player.radius * 4);
+    ctx.filter = 'none'; // フィルタを解除
+    
+    ctx.restore();
   } else {
     if (isUpPressed && isDownPressed) {
       // 上下キー同時押しで赤の部分を非表示にする
