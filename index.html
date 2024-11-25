@@ -126,9 +126,7 @@ let avoidedObstacles = 0;
 
 let difficulty = 'easy';
 
-const easyObstacleInterval = 1000;
-const hardObstacleInterval = 350;
-
+let obstacleInterval = 1000; // 初期値: EASY
 let obstacleTimer = null;
 
 let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0;
@@ -143,11 +141,13 @@ let speedMultiplier = 1;
 
 easyButton.addEventListener('click', () => {
   difficulty = 'easy';
+  obstacleInterval = 1000; // Easy の間隔に設定
   startGame();
 });
 
 hardButton.addEventListener('click', () => {
   difficulty = 'hard';
+  obstacleInterval = 350; // Hard の間隔に設定
   startGame();
 });
 
@@ -163,7 +163,7 @@ function startGame() {
 
   obstacleTimer = setInterval(() => {
     generateObstacle();
-  }, difficulty === 'easy' ? easyObstacleInterval : hardObstacleInterval);
+  }, obstacleInterval); // obstacleInterval を使用
 
   gameLoop();
 }
@@ -212,7 +212,7 @@ function gameLoop(timestamp) {
   }
 
   obstacles.forEach(obstacle => {
-    let elapsedTime = timestamp - startTime;
+    let elapsedTime = (timestamp - startTime) / 1000;
     let obstacleSpeed = obstacle.speed * Math.pow(elapsedTime / 1000, 0.1) * speedMultiplier; // 速度を秒単位で計算
     obstacle.x -= obstacleSpeed; 
 
@@ -289,7 +289,6 @@ function gameLoop(timestamp) {
     let seconds = Math.floor(elapsedTime % 60);
 
     timerElement.textContent = `タイム: ${minutes}:${seconds.toString().padStart(2, '0')}`;
-
     score = avoidedObstacles * 10 + Math.floor((timestamp - startTime) / 1000);
     scoreElement.textContent = `スコア: ${score}`;
   }
@@ -350,6 +349,7 @@ window.addEventListener('keydown', (event) => {
     }
   } else if (event.key === ' ') {
     speedMultiplier = 60;
+    obstacleInterval /= 60; // 障害物の間隔を 60 分の 1 に
   }
 });
 
@@ -360,6 +360,7 @@ window.addEventListener('keyup', (event) => {
     isDownPressed = false;
   } else if (event.key === ' ') {
     speedMultiplier = 1; // スペースキーを離したら速度を元に戻す
+    obstacleInterval *= 60; // 障害物の間隔を元に戻す
   }
 });
 
