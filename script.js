@@ -179,12 +179,13 @@ function gameLoop(timestamp) {
   });
 
   if (player.image) {
+    ctx.imageSmoothingEnabled = true;
     ctx.save();
     ctx.beginPath();
     ctx.arc(player.x, player.y, player.radius * 2, 0, Math.PI * 2);
     ctx.clip();
     ctx.drawImage(player.image, player.x - player.radius * 2, player.y - player.radius * 2, player.radius * 4, player.radius * 4);
-    ctx.filter = 'blur(4px)';
+    ctx.filter = 'blur(1000px)';
     ctx.drawImage(player.image, player.x - player.radius * 2, player.y - player.radius * 2, player.radius * 4, player.radius * 4);
     ctx.filter = 'none'; 
     ctx.restore();
