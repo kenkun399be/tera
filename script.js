@@ -5,29 +5,15 @@ const scoreElement = document.querySelector('.score');
 const highScoreElement = document.querySelector('.high-score');
 const easyButton = document.getElementById('easyButton');
 const hardButton = document.getElementById('hardButton');
-const skinButton = document.getElementById('skinButton');
-const skinUploadContainer = document.getElementById('skinUploadContainer');
-const skinUploadInput = document.getElementById('skinUploadInput');
-const skinPreview = document.getElementById('skinPreview');
-const closeButton = document.getElementById('closeButton');
-const resetSkinButton = document.createElement('button'); // スキングリセットボタンを作成
-const decideSkinButton = document.createElement('button'); // スキン決定ボタンを作成
 
-resetSkinButton.textContent = 'リセット'; // ボタンのテキストを設定
-resetSkinButton.classList.add('close-button'); // ボタンにスタイルクラスを追加
-skinUploadContainer.appendChild(resetSkinButton); // ボタンをスキンアップロードコンテナに追加
-
-decideSkinButton.textContent = '決定'; // ボタンのテキストを設定
-decideSkinButton.classList.add('close-button'); // ボタンにスタイルクラスを追加
-skinUploadContainer.appendChild(decideSkinButton); // ボタンをスキンアップロードコンテナに追加
 
 let player = {
   x: 50,
   y: canvas.height / 2,
   radius: 10,
   speed: 5,
-  color: 'white', // プレイヤーの色を追加
-  image: null // プレイヤーの画像を追加
+  color: 'white',
+  image: null 
 };
 
 let obstacleWidth = 20;
@@ -62,27 +48,14 @@ let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getIte
 
 let isInvulnerable = false;
 let invulnerabilityStartTime = null;
-const invulnerabilityDuration = 3600000; // 1時間 (ミリ秒)
+const invulnerabilityDuration = 3600000; 
 
 let inputCode = '';
 
-let hasDestroyedObstacle = false; // 障害物を破壊したかどうか
+let hasDestroyedObstacle = false; 
 
-let innerCircleColor = 'black'; // 内側の円の初期色
+let innerCircleColor = 'black'; 
 
-// ローカルストレージからスキンの画像データを取得してプレビューに表示
-function updateSkinPreview() {
-  const savedSkin = localStorage.getItem('playerSkin');
-  if (savedSkin) {
-    const img = new Image();
-    img.onload = () => {
-      skinPreview.innerHTML = `<img src="${savedSkin}">`;
-    };
-    img.src = savedSkin;
-  } else {
-    skinPreview.innerHTML = ''; // 画像がない場合はプレビューをクリア
-  }
-}
 
 easyButton.addEventListener('click', () => {
   difficulty = 'easy';
@@ -94,53 +67,10 @@ hardButton.addEventListener('click', () => {
   startGame();
 });
 
-skinButton.addEventListener('click', () => {
-  skinUploadContainer.style.display = 'flex';
-  // ローカルストレージからスキンの画像データを取得してプレビューに表示
-  updateSkinPreview();
-});
-
-closeButton.addEventListener('click', () => {
-  skinUploadContainer.style.display = 'none';
-});
-
-skinUploadInput.addEventListener('change', (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const imageData = e.target.result;
-      // 画像データをローカルストレージに保存 (Base64 エンコード)
-      localStorage.setItem('playerSkin', imageData);
-      // 画像を表示
-      skinPreview.innerHTML = `<img src="${imageData}">`;
-    };
-    reader.readAsDataURL(file);
-  }
-});
-
-resetSkinButton.addEventListener('click', () => {
-  // ローカルストレージからスキンの画像データを削除
-  localStorage.removeItem('playerSkin');
-  // プレビューを更新
-  updateSkinPreview();
-});
-
-decideSkinButton.addEventListener('click', () => {
-  // スキン選択画面を閉じる
-  skinUploadContainer.style.display = 'none';
-  // ローカルストレージからスキンの画像データを取得してプレイヤーに適用
-  const savedSkin = localStorage.getItem('playerSkin');
-  if (savedSkin) {
-    player.image = new Image();
-    player.image.src = savedSkin;
-  }
-});
 
 function startGame() {
   easyButton.style.display = 'none';
   hardButton.style.display = 'none';
-  skinButton.style.display = 'none'; // ゲーム開始時にスキンのボタンを隠す
 
   timerElement.style.display = 'block'; 
   scoreElement.style.display = 'block';
@@ -148,12 +78,8 @@ function startGame() {
 
   highScoreElement.textContent = `最高記録: ${highScore}`;
 
-  // ローカルストレージからスキンの画像データを取得
-  const savedSkin = localStorage.getItem('playerSkin');
-  if (savedSkin) {
-    player.image = new Image();
-    player.image.src = savedSkin;
-  }
+  player.image = new Image();
+  player.image.src = 'tera.png'; 
 
   obstacleTimer = setInterval(() => {
     generateObstacle();
@@ -200,22 +126,22 @@ function gameLoop(timestamp) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (isUpPressed && isDownPressed) {
-    player.color = 'red'; // 上下キー同時押しで赤色
-    player.y -= 0; // プレイヤーを動かさない
-    innerCircleColor = 'red'; // 内側の円を赤色に
+    player.color = 'red'; 
+    player.y -= 0; 
+    innerCircleColor = 'red'; 
   } else {
-    player.color = 'white'; // 上下キー同時押し以外で白色
+    player.color = 'white'; 
     if (isUpPressed && player.y - player.radius > 0) {
       player.y -= player.speed;
     } else if (isDownPressed && player.y + player.radius < canvas.height) {
       player.y += player.speed;
     }
-    innerCircleColor = 'black'; // 内側の円を黒色に戻す
+    innerCircleColor = 'black'; 
   }
 
   obstacles.forEach(obstacle => {
     let elapsedTime = timestamp - startTime;
-    let obstacleSpeed = obstacle.speed * Math.pow(elapsedTime / 1000, 0.1); // 速度を秒単位で計算
+    let obstacleSpeed = obstacle.speed * Math.pow(elapsedTime / 1000, 0.1); 
     obstacle.x -= obstacleSpeed; 
 
     if (difficulty === 'hard') {
@@ -232,7 +158,6 @@ function gameLoop(timestamp) {
     obstacle.rotation += obstacle.rotationSpeed;
   });
 
-  // 障害物との衝突判定 (障害物を破壊)
   obstacles.forEach((obstacle, index) => {
     if (
       player.x - player.radius < obstacle.x + obstacleWidth &&
@@ -240,44 +165,34 @@ function gameLoop(timestamp) {
       player.y - player.radius < obstacle.y + obstacleHeight &&
       player.y + player.radius > obstacle.y
     ) {
-      // 上下キー同時押しで障害物を破壊
       if (isUpPressed && isDownPressed) {
-
-        if (!hasDestroyedObstacle) { // 障害物をまだ破壊していない場合のみ
-          hasDestroyedObstacle = true; // 障害物を破壊したことを記録
-          return; // 衝突判定を終了
+        if (!hasDestroyedObstacle) { 
+          hasDestroyedObstacle = true; 
+          return; 
         }
       }
 
-      // その他の場合、ゲームオーバー
       isGameOver = true;
       cancelAnimationFrame(gameLoop.animationFrame);
       clearInterval(obstacleTimer);
     }
   });
 
-  // プレイヤーを描画
   if (player.image) {
-    // 円形にクリッピング
     ctx.save();
     ctx.beginPath();
     ctx.arc(player.x, player.y, player.radius * 2, 0, Math.PI * 2);
     ctx.clip();
-    
-    // 画像を拡大して描画
     ctx.drawImage(player.image, player.x - player.radius * 2, player.y - player.radius * 2, player.radius * 4, player.radius * 4);
-    // 画像をぼかして描画
     ctx.filter = 'blur(4px)';
     ctx.drawImage(player.image, player.x - player.radius * 2, player.y - player.radius * 2, player.radius * 4, player.radius * 4);
-    ctx.filter = 'none'; // フィルタを解除
-    
+    ctx.filter = 'none'; 
     ctx.restore();
   } else {
     if (isUpPressed && isDownPressed) {
-      // 上下キー同時押しで赤の部分を非表示にする
       ctx.beginPath();
-      ctx.arc(player.x, player.y, player.radius * 0.8, 0, 2 * Math.PI); // 半径を調整
-      ctx.fillStyle = innerCircleColor; // 内側の円の色を使用
+      ctx.arc(player.x, player.y, player.radius * 0.8, 0, 2 * Math.PI); 
+      ctx.fillStyle = innerCircleColor; 
       ctx.fill();
 
       ctx.beginPath();
@@ -286,15 +201,14 @@ function gameLoop(timestamp) {
       ctx.lineWidth = 2;
       ctx.stroke();
     } else {
-      // 上下キー同時押し以外で通常通り表示する
       ctx.beginPath();
       ctx.arc(player.x, player.y, player.radius, 0, 2 * Math.PI);
-      ctx.fillStyle = player.color; // プレイヤーの色を使用
+      ctx.fillStyle = player.color; 
       ctx.fill();
 
       ctx.beginPath();
-      ctx.arc(player.x, player.y, player.radius * 0.8, 0, 2 * Math.PI); // 半径を調整
-      ctx.fillStyle = innerCircleColor; // 内側の円の色を使用
+      ctx.arc(player.x, player.y, player.radius * 0.8, 0, 2 * Math.PI); 
+      ctx.fillStyle = innerCircleColor; 
       ctx.fill();
 
       ctx.beginPath();
@@ -341,7 +255,6 @@ function gameLoop(timestamp) {
   }
 
   if (isGameOver) {
-   
     gameOverScale += 0.01;
     gameOverFontSize = gameOverScale * 50;
 
@@ -364,7 +277,7 @@ function gameLoop(timestamp) {
     highScoreElement.textContent = `最高記録: ${highScore}`;
 
     setTimeout(() => {
-      location.reload(); // 3秒後にページを再読み込み
+      location.reload(); 
     }, 3000);
 
   } else {
@@ -391,7 +304,7 @@ window.addEventListener('keydown', (event) => {
     inputCode += 'i';
     if (inputCode === 'muteki') {
       isInvulnerable = true;
-      inputCode = ''; // 入力コードをリセット
+      inputCode = ''; 
     }
   }
 });
@@ -399,13 +312,13 @@ window.addEventListener('keydown', (event) => {
 window.addEventListener('keyup', (event) => {
   if (event.key === 'w' || event.key === 'ArrowUp') {
     isUpPressed = false;
-    hasDestroyedObstacle = false; // 上キーを離すと破壊可能状態に戻す
-    player.color = 'white'; // 上キーを離すとプレイヤーの色を白に戻す
-    innerCircleColor = 'black'; // 内側の円を黒色に戻す
+    hasDestroyedObstacle = false; 
+    player.color = 'white'; 
+    innerCircleColor = 'black'; 
   } else if (event.key === 's' || event.key === 'ArrowDown') {
     isDownPressed = false;
-    hasDestroyedObstacle = false; // 下キーを離すと破壊可能状態に戻す
-    player.color = 'white'; // 下キーを離すとプレイヤーの色を白に戻す
-    innerCircleColor = 'black'; // 内側の円を黒色に戻す
+    hasDestroyedObstacle = false; 
+    player.color = 'white'; 
+    innerCircleColor = 'black'; 
   }
 });
