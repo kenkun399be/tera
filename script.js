@@ -320,5 +320,3 @@ window.addEventListener('keyup', (event) => {
     innerCircleColor = 'black'; 
   }
 });
-
-obstacles
