@@ -224,16 +224,13 @@ function gameLoop(timestamp) {
     ctx.save();
     ctx.translate(obstacle.x + obstacleWidth / 2, obstacle.y + obstacleHeight / 2);
     ctx.rotate(obstacle.rotation);
-    ctx.fillStyle = obstacleColor;
-   
-    ctx.beginPath();
-    const sideLength = obstacleWidth * Math.sqrt(3) / 2;
-    const height = sideLength * Math.sqrt(3) / 2;
-    ctx.moveTo(0, -height);
-    ctx.lineTo(-sideLength / 2, height / 2);
-    ctx.lineTo(sideLength / 2, height / 2);
-    ctx.closePath();
-    ctx.fill();
+  
+    ctx.font = 'bold 20px Arial';
+    ctx.fillStyle = 'red';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('非リア', 0, 0);
+  
     ctx.restore();
   });
 
@@ -323,3 +320,5 @@ window.addEventListener('keyup', (event) => {
     innerCircleColor = 'black'; 
   }
 });
+
+obstacles
