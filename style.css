@@ -60,7 +60,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  position: relative; 
+  background-color: black;
   padding: 20px;
   border-radius: 10px;
 }
