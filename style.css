@@ -1,10 +1,9 @@
 body {
   margin: 0;
   overflow: hidden;
-  background-color: black;
-  background-image: url("tera2.png"); /* Add this line */
-  background-size: cover;            /* Adjust background size as needed */
-  background-repeat: no-repeat;      /* Prevent repeating the image */
+  background-image: url("tera2.png");
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 #gameCanvas {
@@ -71,7 +70,6 @@ body {
   border: none;
   border-radius: 5px;
   cursor: pointer;
- 
   box-shadow: 0 0 10px rgba(0, 255, 255, 0.5), 0 0 10px rgba(255, 0, 255, 0.5);
 }
 
