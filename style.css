@@ -2,6 +2,9 @@ body {
   margin: 0;
   overflow: hidden;
   background-color: black;
+  background-image: url("tera2.png"); /* Add this line */
+  background-size: cover;            /* Adjust background size as needed */
+  background-repeat: no-repeat;      /* Prevent repeating the image */
 }
 
 #gameCanvas {
