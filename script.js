@@ -70,9 +70,18 @@ hardButton.addEventListener('click', () => {
 
 function startGame() {
   const difficultyButtonsContainer = document.querySelector('.difficulty-buttons');
+  difficultyButtonsContainer.style.position = 'absolute';
+  difficultyButtonsContainer.style.top = '0';
+  difficultyButtonsContainer.style.left = '0';
+  difficultyButtonsContainer.style.width = '100%';
+  difficultyButtonsContainer.style.height = '100%';
   difficultyButtonsContainer.style.backgroundColor = 'black';
   difficultyButtonsContainer.style.padding = '20px';
   difficultyButtonsContainer.style.borderRadius = '10px';
+  difficultyButtonsContainer.style.display = 'flex';
+  difficultyButtonsContainer.style.justifyContent = 'center';
+  difficultyButtonsContainer.style.alignItems = 'center';
+
 
   easyButton.style.display = 'none';
   hardButton.style.display = 'none';
