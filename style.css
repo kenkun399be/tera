@@ -2,8 +2,13 @@ body {
   margin: 0;
   overflow: hidden;
   background-image: url("tera2.png");
-  background-size: cover;
+  background-size: contain;
   background-repeat: no-repeat;
+  background-position: center center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
 #gameCanvas {
@@ -15,7 +20,7 @@ body {
   width: 20px;
   height: 40px;
   background-color: white;
-  border-radius: 50%; /* 円形にする */
+  border-radius: 50%;
 }
 
 .obstacle {
